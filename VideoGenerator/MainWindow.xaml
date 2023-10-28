@@ -3,7 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VideoGenerator" xmlns:viewmodels="clr-namespace:VideoGenerator.ViewModels"
+        xmlns:local="clr-namespace:VideoGenerator"
+        xmlns:viewmodels="clr-namespace:VideoGenerator.ViewModels"
+        xmlns:models="clr-namespace:VideoGenerator.Models"
+        AllowDrop="True"
+        DragEnter="Window_DragEnter"
+        DragOver="Window_DragOver"
+        Drop="Window_Drop"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.DataContext>
@@ -22,12 +28,51 @@
             <RowDefinition Height="20" x:Name="footerRow" />
         </Grid.RowDefinitions>
 
-        <Menu IsMainMenu="True">
+        <!-- ============== Menu Bar ============== -->
+        <Menu IsMainMenu="True" Grid.Row="0">
             <MenuItem Header="File" AlternationCount="2">
                 <MenuItem Header="Open" Command="{Binding OpenFilesCommand}" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
                 <MenuItem Header="Save" Command="{Binding SaveCommand}" InputGestureText="{Binding ElementName=saveShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
                 <MenuItem Header="Save" Command="{Binding SaveAsCommand}" InputGestureText="{Binding ElementName=saveAsShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
             </MenuItem>
         </Menu>
+
+        <!-- ============== Body Tabs ============== -->
+        <TabControl Grid.Row="1">
+            <TabItem Header="Files" x:Name="filesTab">
+                <DataGrid ItemsSource="{Binding ImageFiles}" AutoGenerateColumns="False" VerticalContentAlignment="Center" VerticalAlignment="Stretch" CanUserSortColumns="True" CanUserReorderColumns="True" CanUserDeleteRows="True" HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Name" SortMemberPath="Name" Width="*" IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="models:ImageDataModel">
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Image" IsReadOnly="True" MinWidth="60">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="models:ImageDataModel">
+                                    <Image Source="{Binding Path}" MaxHeight="40" Stretch="Uniform"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Size" SortMemberPath="PixelCount" IsReadOnly="True" MinWidth="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="models:ImageDataModel">
+                                    <TextBlock Text="{Binding Data.Size}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="File Size" SortMemberPath="SizeFormatted" IsReadOnly="True" MinWidth="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="models:ImageDataModel">
+                                    <TextBlock Text="{Binding SizeFormatted}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

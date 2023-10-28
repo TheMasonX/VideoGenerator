@@ -3,12 +3,18 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using VideoGenerator.Extensions;
+using VideoGenerator.Models;
 using VideoGenerator.Properties;
 
 namespace VideoGenerator.ViewModels;
@@ -17,12 +23,14 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 {
     private const string _openFileDialogTitle = "Open Image Files";
     private const string _inputExtensionFilter = "Image files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png|All files (*.*)|*.*";
+    public string InputExtensionRegex => @"(\.bmp)|(\.jpg)|(\.png)";
 
     private const string _saveFileDialogTitle = "Save Video File";
     private const string _outputExtensionFilter = "Video File (*.mp4)|*.mp4|All files (*.*)|*.*";
 
     public MainWindowVM ()
     {
+        OpenFile(@".\uv_test.png");
     }
 
     public void Dispose ()
@@ -36,7 +44,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     private string? _outputFileName;
     public string OutputFileName
     {
-        get => _outputFileName ?? "";
+        get => _outputFileName ??= "";
         set
         {
             if (SetProperty(ref _outputFileName, value))
@@ -50,7 +58,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     private string? _outputFilePath;
     public string OutputFilePath
     {
-        get => _outputFilePath ?? "";
+        get => _outputFilePath ??= "";
         set
         {
             if (SetProperty(ref _outputFilePath, value))
@@ -59,6 +67,13 @@ public partial class MainWindowVM : ObservableObject, IDisposable
                 Settings.Default.Save();
             }
         }
+    }
+
+    private ObservableCollection<ImageData> _imageFiles;
+    public ObservableCollection<ImageData> ImageFiles
+    {
+        get => _imageFiles ??= new();
+        set => SetProperty(ref _imageFiles, value);
     }
 
     #endregion Properties
@@ -115,12 +130,12 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 
     public Task OpenFile (string? file)
     {
-        if (file.IsNullOrEmpty()) return Task.CompletedTask;
+        if (file.IsNullOrEmpty() || !Regex.IsMatch(file, InputExtensionRegex)) return Task.CompletedTask;
 
-        return Task.Run(() =>
-        {
+        var image = new ImageData(file!);
+        Application.Current.Dispatcher.Invoke(() => ImageFiles.Add(image));
 
-        });
+        return Task.CompletedTask;
     }
 
     #endregion Open

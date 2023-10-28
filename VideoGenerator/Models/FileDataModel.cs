@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using VideoGenerator.Extensions;
 
 namespace VideoGenerator.Models;
@@ -16,6 +17,9 @@ public interface IFileData<T>
     string Path { get; init; }
     string Name { get; init; }
     FileInfo? Info { get; init; }
+    ulong Size { get; init; }
+    string SizeFormatted { get; }
+    T? Data { get; }
     T? GetData ();
     bool SaveData (string outputPath);
 }
@@ -29,6 +33,7 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
         Path = filePath;
         Info = new(Path);
         Name = Info.Name;
+        Size = (ulong)(Info?.Length ?? 0);
         LoadData();
     }
 
@@ -36,6 +41,8 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
 
 
     #region Properties
+
+    public T? Data => GetData();
 
     private readonly string? _filePath;
     public string Path
@@ -58,6 +65,15 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
         init => SetProperty(ref _fileInfo, value);
     }
 
+    private readonly ulong _size;
+    public ulong Size
+    {
+        get => _size;
+        init => SetProperty(ref _size, value);
+    }
+
+    public string SizeFormatted => FormatFileSize();
+
     #endregion Properties
 
     #region Public Methods
@@ -71,14 +87,32 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
 
     protected abstract void LoadData ();
 
+    private string FormatFileSize ()
+    {
+        double kb = 1024;
+        double mb = 1024 * 1024;
+        double gb = 1024 * 1024 * 1024;
+
+        if (Size < kb)
+            return $"{Size:N0}B";
+
+        if (Size < mb)
+            return $"{(Size/kb):N1}KB";
+
+        if (Size < gb)
+            return $"{(Size / mb):N1}MB";
+
+        return $"{(Size / gb):N1}GB";
+    }
+
     #endregion Private Methods
 }
 
-public class ImageDataModel : FileDataModel<Image>
+public class ImageData : FileDataModel<Image>
 {
     private Image? _data;
 
-    public ImageDataModel (string filePath) : base(filePath) { }
+    public ImageData (string filePath) : base(filePath) { }
 
     public override void Dispose ()
     {
@@ -86,6 +120,12 @@ public class ImageDataModel : FileDataModel<Image>
         _data = null;
         GC.SuppressFinalize(this);
     }
+
+    #region Properties
+
+    public int PixelCount => (Data?.Size.Width * Data?.Size.Height) ?? 0;
+
+    #endregion Properties
 
     #region Public Methods
 
@@ -130,3 +170,60 @@ public class ImageDataModel : FileDataModel<Image>
 
     #endregion Private Methods
 }
+
+//public class VideoDataModel : FileDataModel<FFMpegCore.FFM>
+//{s
+//    private FFMpegCore.FFMpeg? _data;
+
+//    public VideoDataModel (string filePath) : base(filePath) { }
+
+//    public override void Dispose ()
+//    {
+//        _data?();
+//        _data = null;
+//        GC.SuppressFinalize(this);
+//    }
+
+//    #region Public Methods
+
+//    public override Image? GetData ()
+//    {
+//        return _data;
+//    }
+
+//    public override bool SaveData (string outputPath)
+//    {
+//        if (_data is null || outputPath.IsNullOrEmpty()) return false;
+
+//        try
+//        {
+//            _data.Save(outputPath);
+//            return true;
+//        }
+//        catch (Exception ex)
+//        {
+//            Trace.WriteLine($"Saving {Name} to {outputPath} threw error: {ex}");
+//            return false;
+//        }
+//    }
+
+//    #endregion Public Methods
+
+//    #region Private Methods
+
+//    protected override void LoadData ()
+//    {
+//        if (Info is null) return;
+
+//        try
+//        {
+//            _data = FFMpeg.
+//        }
+//        catch (Exception ex)
+//        {
+//            Trace.WriteLine($"Loading {Name} from {Path} threw error: {ex}");
+//        }
+//    }
+
+//    #endregion Private Methods
+//}

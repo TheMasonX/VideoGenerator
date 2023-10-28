@@ -10,7 +10,7 @@ public class FileModelTests
     [DataRow(@".\uv_test.png", 4096, 4096, DisplayName = "UV_Test")]
     public void ImageModelTest (string imagePath, int width, int height)
     {
-        using (ImageDataModel imageData = new(imagePath))
+        using (ImageData imageData = new(imagePath))
         {
             Image? image = imageData.GetData();
             FileInfo fileInfo = new FileInfo(imagePath);
