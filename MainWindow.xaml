@@ -1,0 +1,33 @@
+﻿<Window x:Class="VideoGenerator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VideoGenerator" xmlns:viewmodels="clr-namespace:VideoGenerator.ViewModels"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <viewmodels:MainWindowVM/>
+    </Window.DataContext>
+
+    <Window.InputBindings>
+        <KeyBinding x:Name="openShortcut" Key="O" Modifiers="Ctrl" Command="{Binding OpenFilesCommand}"/>
+        <KeyBinding x:Name="saveShortcut" Key="S" Modifiers="Ctrl" Command="{Binding SaveCommand}"/>
+        <KeyBinding x:Name="saveAsShortcut" Key="S" Modifiers="Ctrl+Shift" Command="{Binding SaveAsCommand}"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" x:Name="menuBarRow" />
+            <RowDefinition Height="*" x:Name="mainRow" />
+            <RowDefinition Height="20" x:Name="footerRow" />
+        </Grid.RowDefinitions>
+
+        <Menu IsMainMenu="True">
+            <MenuItem Header="File" AlternationCount="2" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture.DisplayString}">
+                <MenuItem Header="Open" Command="{Binding OpenFilesCommand}" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture.DisplayString}"/>
+                <MenuItem Header="Save" Command="{Binding SaveCommand}" InputGestureText="{Binding ElementName=saveShortcut, Path=Gesture.DisplayString}"/>
+                <MenuItem Header="Save" Command="{Binding SaveAsCommand}" InputGestureText="{Binding ElementName=saveAsShortcut, Path=Gesture.DisplayString}"/>
+            </MenuItem>
+        </Menu>
+    </Grid>
+</Window>
