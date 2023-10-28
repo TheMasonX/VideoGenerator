@@ -16,6 +16,6 @@
     <Style TargetType="MenuItem">
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Padding" Value="5,2"/>
+        <Setter Property="Padding" Value="5,3"/>
     </Style>
 </ResourceDictionary>

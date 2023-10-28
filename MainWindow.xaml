@@ -23,10 +23,10 @@
         </Grid.RowDefinitions>
 
         <Menu IsMainMenu="True">
-            <MenuItem Header="File" AlternationCount="2" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture.DisplayString}">
-                <MenuItem Header="Open" Command="{Binding OpenFilesCommand}" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture.DisplayString}"/>
-                <MenuItem Header="Save" Command="{Binding SaveCommand}" InputGestureText="{Binding ElementName=saveShortcut, Path=Gesture.DisplayString}"/>
-                <MenuItem Header="Save" Command="{Binding SaveAsCommand}" InputGestureText="{Binding ElementName=saveAsShortcut, Path=Gesture.DisplayString}"/>
+            <MenuItem Header="File" AlternationCount="2">
+                <MenuItem Header="Open" Command="{Binding OpenFilesCommand}" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
+                <MenuItem Header="Save" Command="{Binding SaveCommand}" InputGestureText="{Binding ElementName=saveShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
+                <MenuItem Header="Save" Command="{Binding SaveAsCommand}" InputGestureText="{Binding ElementName=saveAsShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
             </MenuItem>
         </Menu>
     </Grid>
