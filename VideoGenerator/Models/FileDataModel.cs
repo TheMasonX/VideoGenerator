@@ -14,10 +14,10 @@ namespace VideoGenerator.Models;
 
 public interface IFileData<T>
 {
-    string Path { get; init; }
-    string Name { get; init; }
-    FileInfo? Info { get; init; }
-    ulong Size { get; init; }
+    string Path { get; }
+    string Name { get; }
+    FileInfo? Info { get; }
+    ulong Size { get; }
     string SizeFormatted { get; }
     T? Data { get; }
     T? GetData ();
@@ -44,32 +44,32 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
 
     public T? Data => GetData();
 
-    private readonly string? _filePath;
+    private string? _filePath;
     public string Path
     {
         get => _filePath ?? "";
-        init => SetProperty(ref _filePath, value);
+        private set => SetProperty(ref _filePath, value);
     }
 
-    private readonly string? _fileName;
+    private string? _fileName;
     public string Name
     {
         get => _fileName ?? "";
-        init => SetProperty(ref _fileName, value);
+        private set => SetProperty(ref _fileName, value);
     }
 
-    private readonly FileInfo? _fileInfo;
+    private FileInfo? _fileInfo;
     public FileInfo? Info
     {
         get => _fileInfo;
-        init => SetProperty(ref _fileInfo, value);
+        private set => SetProperty(ref _fileInfo, value);
     }
 
-    private readonly ulong _size;
+    private ulong _size;
     public ulong Size
     {
         get => _size;
-        init => SetProperty(ref _size, value);
+        private set => SetProperty(ref _size, value);
     }
 
     public string SizeFormatted => FormatFileSize();
@@ -89,9 +89,9 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
 
     private string FormatFileSize ()
     {
-        double kb = 1024;
-        double mb = 1024 * 1024;
-        double gb = 1024 * 1024 * 1024;
+        const double kb = 1024;
+        const double mb = 1024 * 1024;
+        const double gb = 1024 * 1024 * 1024;
 
         if (Size < kb)
             return $"{Size:N0}B";

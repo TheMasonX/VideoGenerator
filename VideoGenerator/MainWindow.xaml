@@ -11,10 +11,28 @@
         DragOver="Window_DragOver"
         Drop="Window_Drop"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        x:Name="mainWindow"
+        Title="Image To Video Converter" Height="450" Width="800">
     <Window.DataContext>
         <viewmodels:MainWindowVM/>
     </Window.DataContext>
+    <Window.Resources>
+        <Style TargetType="Grid" x:Key="statusBarNotify">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=statusBarGrid, Path=DataContext.Status.Notify}" Value="False">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard x:Name="notifyStoryboard">
+                                <DoubleAnimationUsingKeyFrames>
+                                    <DiscreteDoubleKeyFrame KeyTime="0" Value="30"/>
+                                </DoubleAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
     <Window.InputBindings>
         <KeyBinding x:Name="openShortcut" Key="O" Modifiers="Ctrl" Command="{Binding OpenFilesCommand}"/>
@@ -30,19 +48,37 @@
 
         <!-- ============== Menu Bar ============== -->
         <Menu IsMainMenu="True" Grid.Row="0">
-            <MenuItem Header="File" AlternationCount="2">
-                <MenuItem Header="Open" Command="{Binding OpenFilesCommand}" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
-                <MenuItem Header="Save" Command="{Binding SaveCommand}" InputGestureText="{Binding ElementName=saveShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
-                <MenuItem Header="Save" Command="{Binding SaveAsCommand}" InputGestureText="{Binding ElementName=saveAsShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
+            <MenuItem Header="_File" AlternationCount="2">
+                <MenuItem Header="_Open" Command="{Binding OpenFilesCommand}" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
+                <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="{Binding ElementName=saveShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
+                <MenuItem Header="_Save As" Command="{Binding SaveAsCommand}" InputGestureText="{Binding ElementName=saveAsShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
             </MenuItem>
         </Menu>
 
         <!-- ============== Body Tabs ============== -->
         <TabControl Grid.Row="1">
             <TabItem Header="Files" x:Name="filesTab">
-                <DataGrid ItemsSource="{Binding ImageFiles}" AutoGenerateColumns="False" VerticalContentAlignment="Center" VerticalAlignment="Stretch" CanUserSortColumns="True" CanUserReorderColumns="True" CanUserDeleteRows="True" HeadersVisibility="Column">
+                <DataGrid x:Name="filesGrid" ItemsSource="{Binding ImageFilesView}" AutoGenerateColumns="False" VerticalContentAlignment="Center" VerticalAlignment="Stretch" CanUserSortColumns="True" CanUserReorderColumns="True" CanUserDeleteRows="True" HeadersVisibility="Column" AlternatingRowBackground="LightGray">
                     <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Name" SortMemberPath="Name" Width="*" IsReadOnly="True">
+                        <DataGridTemplateColumn SortMemberPath="Name" Width="*" IsReadOnly="True">
+                            <DataGridTemplateColumn.Header>
+                                <Grid Width="Auto" Height="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Tag="{Binding ElementName=mainWindow, Path=DataContext}">
+                                    <TextBlock x:Name="fileNameHeader" Text="Name" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                    <Grid.ContextMenu>
+                                        <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                            <MenuItem Command="{Binding ToggleFilenameFilterCommand}">
+                                                <MenuItem.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="_Filter:"/>
+                                                        <TextBox Text="{Binding FileNameFilter, UpdateSourceTrigger=PropertyChanged}" MinWidth="80"/>
+                                                    </StackPanel>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Grid.ContextMenu>
+                                </Grid>
+                                
+                            </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate DataType="models:ImageDataModel">
                                     <TextBlock Text="{Binding Name}"/>
@@ -63,7 +99,7 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="File Size" SortMemberPath="SizeFormatted" IsReadOnly="True" MinWidth="80">
+                        <DataGridTemplateColumn Header="File Size" SortMemberPath="Size" IsReadOnly="True" MinWidth="80">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate DataType="models:ImageDataModel">
                                     <TextBlock Text="{Binding SizeFormatted}"/>
@@ -74,5 +110,23 @@
                 </DataGrid>
             </TabItem>
         </TabControl>
+
+        <!-- ============== Status Bar ========= -->
+
+        <Grid Grid.Row="2" x:Name="statusBarGrid">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Status.Notify}" Value="False">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+
+            <ProgressBar x:Name="statusProgress" Minimum="0" Maximum="1" Value="{Binding Status.ProgressPercent, FallbackValue=0}" Visibility="{Binding Status.ShowProgress, Converter={StaticResource boolToVis}, FallbackValue=Hidden}"/>
+            <TextBlock x:Name="statusText" Text="{Binding Status.Status}" Foreground="{Binding Status.TextColor}" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center">
+            </TextBlock>
+        </Grid>
     </Grid>
 </Window>
