@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VideoGenerator"
         xmlns:viewmodels="clr-namespace:VideoGenerator.ViewModels"
-        xmlns:models="clr-namespace:VideoGenerator.Models" xmlns:system="clr-namespace:System;assembly=mscorlib" xmlns:extensions="clr-namespace:VideoGenerator.Utils.Extensions"
+        xmlns:models="clr-namespace:VideoGenerator.Models" xmlns:system="clr-namespace:System;assembly=mscorlib" xmlns:extensions="clr-namespace:VideoGenerator.Utils.Extensions" xmlns:views="clr-namespace:VideoGenerator.Views"
         AllowDrop="True"
         DragEnter="Window_DragEnter"
         DragOver="Window_DragOver"
@@ -22,15 +22,16 @@
         <KeyBinding x:Name="saveAsShortcut" Key="S" Modifiers="Ctrl+Shift" Command="{Binding SaveAsCommand}"/>
     </Window.InputBindings>
     <Window.Resources>
+        <GridLengthConverter x:Key="lengthConverter"/>
         <GridLength x:Key="statusBarMaxHeight">20</GridLength>
 
-        <GridLengthConverter x:Key="lengthConverter"/>
+        <!-- === Notify Anim === -->
         <Style TargetType="RowDefinition" x:Key="notifyRow">
             <Setter  Property="Height" Value="0"/>
             <Style.Triggers>
+                <!-- === Slide In === -->
                 <DataTrigger Binding="{Binding Status.Notify}" Value="True">
                     <DataTrigger.EnterActions>
-                        <RemoveStoryboard BeginStoryboardName="slideOutAnim"/>
                         <BeginStoryboard x:Name="slideInAnim">
                             <Storyboard>
                                 <extensions:GridLengthAnimation Duration="0:0:0.25" FillBehavior="HoldEnd" Storyboard.TargetProperty="Height" From="0" To="{StaticResource statusBarMaxHeight}" Unit="Pixel">
@@ -45,9 +46,9 @@
                         <RemoveStoryboard BeginStoryboardName="slideInAnim"/>
                     </DataTrigger.ExitActions>
                 </DataTrigger>
+                <!-- === Slide Out === -->
                 <DataTrigger Binding="{Binding Status.Notify}" Value="False">
                     <DataTrigger.EnterActions>
-                        <RemoveStoryboard BeginStoryboardName="slideInAnim"/>
                         <BeginStoryboard x:Name="slideOutAnim">
                             <Storyboard>
                                 <extensions:GridLengthAnimation BeginTime="0:0:0.5" Duration="0:0:1.25" FillBehavior="HoldEnd" Storyboard.TargetProperty="Height" From="{StaticResource statusBarMaxHeight}" To="0" Unit="Pixel">
@@ -87,7 +88,6 @@
             <RowDefinition Height="Auto" x:Name="menuBarRow" />
             <RowDefinition Height="*" x:Name="mainRow" />
             <RowDefinition x:Name="footerRow" Style="{StaticResource notifyRow}"/>
-            <!--Height="{Binding ActualHeight, ElementName=statusBarGrid}"-->
         </Grid.RowDefinitions>
 
         <!-- ============== Menu Bar ============== -->
@@ -102,57 +102,7 @@
         <!-- ============== Body Tabs ============== -->
         <TabControl Grid.Row="1" Grid.RowSpan="2">
             <TabItem Header="Files" x:Name="filesTab">
-                <DataGrid x:Name="filesGrid" ItemsSource="{Binding ImageFilesView}" EnableRowVirtualization="False" EnableColumnVirtualization="False" RowHeight="30" AutoGenerateColumns="False" CanUserSortColumns="True" CanUserReorderColumns="True" CanUserDeleteRows="True" HeadersVisibility="Column" AlternatingRowBackground="LightGray">
-                    <DataGrid.Columns>
-                        <!-- == Name Column == -->
-                        <DataGridTemplateColumn SortMemberPath="Name" Width="*" IsReadOnly="True">
-                            <DataGridTemplateColumn.Header>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                                    <TextBlock x:Name="fileNameHeader" Text="Name" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                    <ToggleButton x:Name="fileNameFilterEnabled" HorizontalAlignment="Right" Content="Filter" IsChecked="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Margin="10,0,0,0"/>
-                                    <TextBox x:Name="filterTextBox" Text="{Binding DataContext.FileNameFilter, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                             Visibility="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource boolToVis}, FallbackValue=Collapsed}"/>
-                                </StackPanel>
-                            </DataGridTemplateColumn.Header>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate d:DataType="models:ImageDataModel">
-                                    <TextBlock Text="{Binding Name}"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!-- == Image Column == --> 
-                        <DataGridTemplateColumn Header="Image" IsReadOnly="True" MinWidth="60">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate d:DataType="models:ImageDataModel">
-                                    <Image Source="{Binding Path}" MaxHeight="25" Stretch="Uniform" RenderOptions.EdgeMode="Aliased" RenderOptions.BitmapScalingMode="LowQuality">
-                                        <Image.CacheMode>
-                                            <BitmapCache EnableClearType="False"
-                                                         RenderOptions.CachingHint="Cache"
-                                                         RenderOptions.BitmapScalingMode="LowQuality"
-                                                         SnapsToDevicePixels="True"/>
-                                        </Image.CacheMode>
-                                    </Image>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!-- == Image Size Column == -->
-                        <DataGridTemplateColumn Header="Size" SortMemberPath="PixelCount" IsReadOnly="True" MinWidth="80">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate d:DataType="models:ImageDataModel">
-                                    <TextBlock Text="{Binding Data.Size}"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!-- == File Size Column == -->
-                        <DataGridTemplateColumn Header="File Size" SortMemberPath="Size" IsReadOnly="True" MinWidth="80">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate d:DataType="models:ImageDataModel">
-                                    <TextBlock Text="{Binding SizeFormatted}"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+                <views:FileGrid DataContext="{Binding FileGrid}"/>
             </TabItem>
         </TabControl>
 

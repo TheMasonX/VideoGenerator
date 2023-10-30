@@ -1,17 +1,21 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using VideoGenerator.Models;
 using VideoGenerator.Utils.Extensions;
 
 namespace VideoGenerator.ViewModels;
 
-public class FileGridVM : ObservableObject, IDisposable
+public partial class FileGridVM : ObservableObject, IDisposable
 {
+    private object _lock = new();
+
     public FileGridVM ()
     {
 
@@ -19,7 +23,14 @@ public class FileGridVM : ObservableObject, IDisposable
 
     public void Dispose ()
     {
-        throw new NotImplementedException();
+        if(_imageFiles is not null)
+        {
+            foreach (var file in _imageFiles)
+                file.Dispose();
+        }
+        if(_imageFilesView is not null)
+        {
+        }
     }
 
 
@@ -35,7 +46,7 @@ public class FileGridVM : ObservableObject, IDisposable
     private ListCollectionView? _imageFilesView;
     public ListCollectionView ImageFilesView
     {
-        get => _imageFilesView ??= new(ImageFiles);
+        get => _imageFilesView ??= CreateFileListView(ImageFiles); 
         //get => _imageFilesView ??= new(ImageFiles);
         set => SetProperty(ref _imageFilesView, value);
     }
@@ -46,8 +57,8 @@ public class FileGridVM : ObservableObject, IDisposable
         get => _fileNameFilter ??= "";
         set
         {
-            if (SetProperty(ref _fileNameFilter, value) && EnableFileNameFilter)
-                ImageFilesView.Refresh();
+            if (SetProperty(ref _fileNameFilter, value) && EnableFileNameFilter && ImageFilesView.CanFilter)
+                Refresh();
         }
     }
 
@@ -58,12 +69,11 @@ public class FileGridVM : ObservableObject, IDisposable
         set
         {
             if (SetProperty(ref _enableFileNameFilter, value))
-            {
-                ImageFilesView.Filter = value ? FilterImageFileNames : null;
-                ImageFilesView.Refresh();
-            }
+                Refresh();
         }
     }
+
+    public int Count => ImageFilesView?.Count ?? 0;
 
     private bool _isFilterOpen;
     public bool IsFilterOpen
@@ -76,17 +86,61 @@ public class FileGridVM : ObservableObject, IDisposable
 
     #region Commands
 
-    //Commands
+    [RelayCommand]
+    public void ToggleFilenameFilter ()
+    {
+        EnableFileNameFilter = !EnableFileNameFilter;
+    }
 
     #endregion Commands
 
     #region Public Methods
 
-    //Public Methods
+    public bool OpenFile (string? file, bool update = true)
+    {
+        if (file.IsNullOrEmpty()) return false;
+
+        ImageData data = new(file!);
+        lock (_lock)
+        {
+            ImageFiles.Add(data);
+        }
+        //    ImageFilesView.Dispatcher.BeginInvoke(() =>
+        //{
+            
+        //        ImageFiles.Add(data);
+        //        //ImageFilesView.AddNewItem(data);
+        //    }
+        //});
+
+        return true;
+    }
+
+    public void Refresh ()
+    {
+        ImageFilesView.Dispatcher.BeginInvoke(() =>
+        {
+            lock (_lock)
+            {
+                ImageFilesView.Refresh();
+            }
+        });
+    }
+
 
     #endregion Public Methods
 
     #region Private Methods
+
+    private ListCollectionView CreateFileListView<T>(List<T> files)
+    {
+        return Application.Current.Dispatcher.Invoke(() =>
+        {
+            var view = new ListCollectionView(files) { Filter = FilterImageFileNames };
+            BindingOperations.EnableCollectionSynchronization(view, _lock);
+            return view;
+        });
+    }
 
     private bool FilterImageFileNames (object file)
     {

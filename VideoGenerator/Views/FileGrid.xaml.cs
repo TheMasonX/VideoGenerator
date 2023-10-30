@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace VideoGenerator.Utils.Controls
+namespace VideoGenerator.Views
 {
     /// <summary>
     /// Interaction logic for FileGrid.xaml

@@ -14,7 +14,7 @@ namespace VideoGenerator.Models;
 
 public interface IFileData<T>
 {
-    string Path { get; }
+    string FilePath { get; }
     string Name { get; }
     FileInfo? Info { get; }
     ulong Size { get; }
@@ -32,8 +32,8 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
 
         //_data = Image.FromFile(filePath);
 
-        Path = filePath;
-        Info = new(Path);
+        FilePath = filePath;
+        Info = new(FilePath);
         Name = Info.Name;
         Size = (ulong)(Info?.Length ?? 0);
         LoadData();
@@ -47,9 +47,9 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
     public T? Data => GetData();
 
     private string? _filePath;
-    public string Path
+    public string FilePath
     {
-        get => _filePath ?? "";
+        get => _filePath ??= "";
         private set => SetProperty(ref _filePath, value);
     }
 
@@ -158,15 +158,15 @@ public class ImageData : FileDataModel<Image>
 
     protected override void LoadData ()
     {
-        if (Path.IsNullOrEmpty()) return;
+        if (FilePath.IsNullOrEmpty()) return;
 
         try
         {
-            _data = Image.FromFile(Path);
+            _data = Image.FromFile(FilePath);
         }
         catch (Exception ex)
         {
-            Trace.WriteLine($"Loading {Name} from {Path} threw error: {ex}");
+            Trace.WriteLine($"Loading {Name} from {FilePath} threw error: {ex}");
         }
     }
 

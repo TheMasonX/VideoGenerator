@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,6 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using VideoGenerator.Models;
 using VideoGenerator.Properties;
@@ -38,12 +38,12 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 
     private void Test ()
     {
-        //Task.Run(() =>
-        //{
+        Task.Run(() =>
+        {
             List<string> files = new(100);
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 40; i++)
             {
-                files.Add(@".\uv_test.png");
+                files.Add(@"C:\Users\TheMasonX\Pictures\uv_test.png");
             }
 
             //for(int i = 0; i < 5; i++)
@@ -51,7 +51,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
             //Task.Delay(3000).Wait();
             OpenFiles(files);
             //}
-        //});
+        });
     }
 
     public void Dispose ()
@@ -97,53 +97,6 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         set => SetProperty(ref _fileGrid, value);
     }
 
-    private List<ImageData>? _imageFiles;
-    public List<ImageData> ImageFiles
-    {
-        get => _imageFiles ??= new();
-        set => SetProperty(ref _imageFiles, value);
-    }
-
-    private ListCollectionView? _imageFilesView;
-    public ListCollectionView ImageFilesView
-    {
-        get => _imageFilesView ??= new(ImageFiles);
-        //get => _imageFilesView ??= new(ImageFiles);
-        set => SetProperty(ref _imageFilesView, value);
-    }
-
-    private string? _fileNameFilter;
-    public string FileNameFilter
-    {
-        get => _fileNameFilter ??= "";
-        set
-        {
-            if (SetProperty(ref _fileNameFilter, value) && EnableFileNameFilter)
-                ImageFilesView.Refresh();
-        }
-    }
-
-    private bool _enableFileNameFilter;
-    public bool EnableFileNameFilter
-    {
-        get => _enableFileNameFilter;
-        set
-        {
-            if (SetProperty(ref _enableFileNameFilter, value))
-            {
-                ImageFilesView.Filter = value ? FilterImageFileNames : null;
-                ImageFilesView.Refresh();
-            }
-        }
-    }
-
-    private bool _isFilterOpen;
-    public bool IsFilterOpen
-    {
-        get => _isFilterOpen;
-        set => SetProperty(ref _isFilterOpen, value);
-    }
-
     private IAppStatus? _status;
     public IAppStatus? Status
     {
@@ -156,9 +109,9 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     #region Commands
 
     [RelayCommand]
-    public void OnOpenFiles ()
+    public Task OnOpenFiles ()
     {
-        Task.Run(() =>
+        return Task.Run(() =>
         {
             OpenFileDialog openFileDialog = new()
             {
@@ -174,27 +127,21 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    public void OnSave ()
+    public Task OnSave ()
     {
-        Task.Run(() =>
+        return Task.Run(() =>
         {
             Save();
         });
     }
 
     [RelayCommand]
-    public void OnSaveAs ()
+    public Task OnSaveAs ()
     {
-        Task.Run(() =>
+        return Task.Run(() =>
         {
             SaveAs();
         });
-    }
-
-    [RelayCommand]
-    public void ToggleFilenameFilter ()
-    {
-        EnableFileNameFilter = !EnableFileNameFilter;
     }
 
     #endregion Commands
@@ -207,8 +154,9 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     {
         if (files is null || !files.Any()) return;
 
-        List<Task> tasks = new(files.Count());
-        Status = new LoadingAppStatus(ImageFiles.Count, ImageFiles.Count + files.Count(), "Item", "Items");
+        int addCount = files.Count();
+        List<Task> tasks = new(addCount);
+        Status = new LoadingStatus(FileGrid.Count, FileGrid.Count + addCount, "Item", "Items");
         //foreach (string file in files)
         //{
         //    tasks.Add(Task.Run(() => OpenFile(file, false)));
@@ -219,30 +167,14 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         {
             foreach (string file in files)
             {
-                OpenFile(file, false);
+                if (file.IsNullOrEmpty() || !Regex.IsMatch(file!, InputExtensionRegex)) continue;
+                if (FileGrid.OpenFile(file, true))
+                    Status.Update(1);
+                else
+                    Status = new TextStatus() { Status = $"Load Error for {file}", BGColor = Brushes.Red };
             }
             Status.Hide();
-        });
-
-        Application.Current.Dispatcher.BeginInvoke(() =>
-        {
-            ImageFilesView.CommitNew();
-            //ImageFilesView.Refresh();
-        });
-
-    }
-
-    public void OpenFile (string? file, bool update = true)
-    {
-        if (file.IsNullOrEmpty() || !Regex.IsMatch(file!, InputExtensionRegex)) return;
-
-        ImageData data = new(file!);
-        //ImageFiles.Add(data);
-        Status?.Update(1);
-        Application.Current.Dispatcher.BeginInvoke(() =>
-        {
-            ImageFilesView.AddNewItem(data);
-            if (update) ImageFilesView.CommitNew();
+            FileGrid.Refresh();
         });
     }
 
@@ -299,13 +231,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 
     #region Private Methods
 
-    private bool FilterImageFileNames(object file)
-    {
-        if (!EnableFileNameFilter || FileNameFilter.IsNullOrEmpty()) return true;
-        if (file is not ImageData imageData) return false;
-
-        return imageData.Name.Contains(FileNameFilter, StringComparison.CurrentCultureIgnoreCase);
-    }
+    // Private Methods
 
     #endregion Private Methods
 }
