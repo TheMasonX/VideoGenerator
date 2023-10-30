@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows;
 using System.Windows.Input;
-using VideoGenerator.Extensions;
+using VideoGenerator.Utils.Extensions;
 
-namespace VideoGenerator.Converters;
+namespace VideoGenerator.Utils.Converters;
 
 [ValueConversion(typeof(InputGesture), typeof(string))]
 class GestureConverter : IValueConverter
 {
-    public object Convert (object? value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is not InputGesture gesture) return value?.ToString() ?? DependencyProperty.UnsetValue;
 
@@ -26,7 +26,7 @@ class GestureConverter : IValueConverter
         return value.ToString() ?? DependencyProperty.UnsetValue;
     }
 
-    public object ConvertBack (object? value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object parameter, CultureInfo culture)
     {
         string? strValue = value as string;
         if (strValue.IsNullOrEmpty()) return DependencyProperty.UnsetValue;

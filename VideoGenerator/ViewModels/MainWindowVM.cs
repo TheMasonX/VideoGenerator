@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -11,18 +12,19 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
-using VideoGenerator.Extensions;
 using VideoGenerator.Models;
 using VideoGenerator.Properties;
+using VideoGenerator.Utils.Extensions;
 
 namespace VideoGenerator.ViewModels;
 
 public partial class MainWindowVM : ObservableObject, IDisposable
 {
-    private const string _openFileDialogTitle = "Open Image Files";
+    private const string _openFileDialogTitle = "Select Images To Convert";
     private const string _inputExtensionFilter = "Image files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png|All files (*.*)|*.*";
     public string InputExtensionRegex => @"(\.bmp)|(\.jpg)|(\.png)";
 
@@ -31,7 +33,22 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 
     public MainWindowVM ()
     {
-        OpenFile(@".\uv_test.png");
+        Task.Run(() =>
+        {
+            Trace.WriteLine("Waiting!");
+            List<string> files = new(100);
+            for (int i = 0; i < 10; i++)
+            {
+                files.Add(@".\uv_test.png");
+            }
+
+            for(int i = 0; i < 5; i++)
+            {
+                Task.Delay(3000).Wait();
+                Trace.WriteLine("Opening Files!");
+                OpenFiles(files);
+            }
+        });
     }
 
     public void Dispose ()
@@ -70,17 +87,18 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         }
     }
 
-    private List<ImageData> _imageFiles;
+    private List<ImageData>? _imageFiles;
     public List<ImageData> ImageFiles
     {
         get => _imageFiles ??= new();
         set => SetProperty(ref _imageFiles, value);
     }
 
-    private ListCollectionView _imageFilesView;
+    private ListCollectionView? _imageFilesView;
     public ListCollectionView ImageFilesView
     {
-        get => _imageFilesView ??= new(ImageFiles) { Filter = FilterImageFileNames };
+        get => _imageFilesView ??= new(ImageFiles);
+        //get => _imageFilesView ??= new(ImageFiles);
         set => SetProperty(ref _imageFilesView, value);
     }
 
@@ -90,7 +108,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         get => _fileNameFilter ??= "";
         set
         {
-            if (SetProperty(ref _fileNameFilter, value))
+            if (SetProperty(ref _fileNameFilter, value) && EnableFileNameFilter)
                 ImageFilesView.Refresh();
         }
     }
@@ -102,8 +120,18 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         set
         {
             if (SetProperty(ref _enableFileNameFilter, value))
+            {
+                ImageFilesView.Filter = value ? FilterImageFileNames : null;
                 ImageFilesView.Refresh();
+            }
         }
+    }
+
+    private bool _isFilterOpen;
+    public bool IsFilterOpen
+    {
+        get => _isFilterOpen;
+        set => SetProperty(ref _isFilterOpen, value);
     }
 
     private IAppStatus? _status;
@@ -118,13 +146,13 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     #region Commands
 
     [RelayCommand]
-    public Task OnOpenFiles()
+    public void OnOpenFiles ()
     {
-        return Task.Run(() =>
+        Task.Run(() =>
         {
             OpenFileDialog openFileDialog = new()
             {
-                Title = "Select Images To Convert",
+                Title = _openFileDialogTitle,
                 RestoreDirectory = true,
                 CheckFileExists = true,
                 Multiselect = true,
@@ -136,15 +164,21 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    public Task OnSave ()
+    public void OnSave ()
     {
-        return Save();
+        Task.Run(() =>
+        {
+            Save();
+        });
     }
 
     [RelayCommand]
-    public Task OnSaveAs ()
+    public void OnSaveAs ()
     {
-        return Save();
+        Task.Run(() =>
+        {
+            SaveAs();
+        });
     }
 
     [RelayCommand]
@@ -159,35 +193,41 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 
     #region Open
 
-    public Task OpenFiles(IEnumerable<string>? files)
+    public void OpenFiles (IEnumerable<string>? files)
     {
-        if (files is null || !files.Any()) return Task.CompletedTask;
+        if (files is null || !files.Any()) return;
 
         List<Task> tasks = new(files.Count());
-        Status = new LoadingAppStatus(0, files.Count(), "Item", "Items");
-        int itemCount = 0;
-        foreach(string file in files)
+        Status = new LoadingAppStatus(ImageFiles.Count, ImageFiles.Count + files.Count(), "Item", "Items");
+        foreach (string file in files)
         {
-            tasks.Add(OpenFile(file));
-            Status.Update(++itemCount);
+            tasks.Add(Task.Run(() => OpenFile(file, false)));
+            Task.Delay(200).Wait();
         }
 
-        return Task.WhenAll(tasks);
-        //return Task.Run(() =>
-        //{
-        //    Status.Hide();
-        //    Task.WhenAll(tasks);
-        //});
+        Task.WhenAll(tasks).Wait();
+        Status.Hide();
+        Application.Current.Dispatcher.BeginInvoke(() =>
+        {
+            ImageFilesView.CommitNew();
+            ImageFilesView.Refresh();
+        });
+
     }
 
-    public Task OpenFile (string? file)
+    public void OpenFile (string? file, bool update = true)
     {
-        if (file.IsNullOrEmpty() || !Regex.IsMatch(file, InputExtensionRegex)) return Task.CompletedTask;
+        if (file.IsNullOrEmpty() || !Regex.IsMatch(file!, InputExtensionRegex)) return;
 
-        var image = new ImageData(file!);
-        Application.Current.Dispatcher.Invoke(() => ImageFiles.Add(image));
 
-        return Task.CompletedTask;
+        ImageData data = new(file!);
+        Application.Current.Dispatcher.BeginInvoke(() =>
+        {
+            ImageFilesView.AddNewItem(data);
+            if(update) ImageFilesView.CommitNew();
+        });
+        //ImageFiles.Add(data);
+        Status?.Update(ImageFiles.Count);
     }
 
     #endregion Open

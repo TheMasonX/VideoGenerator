@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using VideoGenerator.Extensions;
+using VideoGenerator.Utils.Extensions;
 
 namespace VideoGenerator.Models;
 

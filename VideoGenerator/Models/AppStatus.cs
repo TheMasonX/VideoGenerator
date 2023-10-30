@@ -17,6 +17,25 @@ namespace VideoGenerator.Models
         void Hide ();
     }
 
+    public class DefaultAppStatus : ObservableObject, IAppStatus
+    {
+        public string Status => "";
+
+        public bool Notify => false;
+
+        public Brush TextColor => Brushes.Black;
+
+        public void Hide ()
+        {
+            
+        }
+
+        public bool Update (object data)
+        {
+            return false;
+        }
+    }
+
     public class LoadingAppStatus : ObservableObject, IAppStatus, IDisposable
     {
         private string _itemLabel = "Item";
@@ -29,7 +48,6 @@ namespace VideoGenerator.Models
             _itemLabel = itemLabel;
             _itemLabelPlural = itemLabelPlural;
             ProgressPercent = 0;
-            ShowProgress = false;
             Notify = true;
         }
 
@@ -76,13 +94,6 @@ namespace VideoGenerator.Models
             set => SetProperty(ref _progressPercent, value);
         }
 
-        private bool _showProgress;
-        public bool ShowProgress
-        {
-            get => _showProgress;
-            set => SetProperty(ref _showProgress, value);
-        }
-
         private Brush _textColor = Brushes.Black;
         public Brush TextColor
         {
@@ -102,20 +113,17 @@ namespace VideoGenerator.Models
 
         public bool Update (object data)
         {
-            if (data is not int value || _totalCount <= 0)
+            int loadingCount = _totalCount - _startCount;
+            if (data is not int value || loadingCount <= 0)
             {
                 Status = "Invalid Status";
-                ShowProgress = false;
                 TextColor = Brushes.Red;
                 return false;
             }
 
             TextColor = Brushes.Black;
-            ProgressPercent = (value - _startCount) / (float)_totalCount;
-            ShowProgress = true;
-            //ShowProgress = Notify = value < _totalCount;
-            Notify = value < _totalCount;
-            Status = $"{ProgressPercent:P1} Complete : Loaded {value}/{_totalCount} {(value > 1 ? _itemLabelPlural : _itemLabel)}";
+            ProgressPercent = (value - _startCount) / (float)loadingCount;
+            Status = $"{ProgressPercent:P1} Complete : Loaded {value - _startCount}/{loadingCount} {(value > 1 ? _itemLabelPlural : _itemLabel)}";
             return true;
         }
 

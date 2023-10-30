@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VideoGenerator"
         xmlns:viewmodels="clr-namespace:VideoGenerator.ViewModels"
-        xmlns:models="clr-namespace:VideoGenerator.Models"
+        xmlns:models="clr-namespace:VideoGenerator.Models" xmlns:system="clr-namespace:System;assembly=mscorlib" xmlns:extensions="clr-namespace:VideoGenerator.Utils.Extensions"
         AllowDrop="True"
         DragEnter="Window_DragEnter"
         DragOver="Window_DragOver"
@@ -16,34 +16,78 @@
     <Window.DataContext>
         <viewmodels:MainWindowVM/>
     </Window.DataContext>
-    <Window.Resources>
-        <Style TargetType="Grid" x:Key="statusBarNotify">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding ElementName=statusBarGrid, Path=DataContext.Status.Notify}" Value="False">
-                    <DataTrigger.EnterActions>
-                        <BeginStoryboard>
-                            <Storyboard x:Name="notifyStoryboard">
-                                <DoubleAnimationUsingKeyFrames>
-                                    <DiscreteDoubleKeyFrame KeyTime="0" Value="30"/>
-                                </DoubleAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </DataTrigger.EnterActions>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
-
     <Window.InputBindings>
         <KeyBinding x:Name="openShortcut" Key="O" Modifiers="Ctrl" Command="{Binding OpenFilesCommand}"/>
         <KeyBinding x:Name="saveShortcut" Key="S" Modifiers="Ctrl" Command="{Binding SaveCommand}"/>
         <KeyBinding x:Name="saveAsShortcut" Key="S" Modifiers="Ctrl+Shift" Command="{Binding SaveAsCommand}"/>
     </Window.InputBindings>
+    <Window.Resources>
+        <GridLength x:Key="statusBarMaxHeight">20</GridLength>
+
+        <GridLengthConverter x:Key="lengthConverter"/>
+        <Style TargetType="RowDefinition" x:Key="notifyRow">
+            <Setter  Property="Height" Value="0"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status.Notify}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <RemoveStoryboard BeginStoryboardName="slideOutAnim"/>
+                        <BeginStoryboard x:Name="slideInAnim">
+                            <Storyboard>
+                                <extensions:GridLengthAnimation Duration="0:0:0.5" FillBehavior="HoldEnd" Storyboard.TargetProperty="Height" From="0" To="{StaticResource statusBarMaxHeight}" Unit="Pixel">
+                                    <extensions:GridLengthAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseInOut"/>
+                                    </extensions:GridLengthAnimation.EasingFunction>
+                                </extensions:GridLengthAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <RemoveStoryboard BeginStoryboardName="slideInAnim"/>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status.Notify}" Value="False">
+                    <DataTrigger.EnterActions>
+                        <RemoveStoryboard BeginStoryboardName="slideInAnim"/>
+                        <BeginStoryboard x:Name="slideOutAnim">
+                            <Storyboard>
+                                <extensions:GridLengthAnimation BeginTime="0:0:0.75" Duration="0:0:1.25" FillBehavior="HoldEnd" Storyboard.TargetProperty="Height" From="{StaticResource statusBarMaxHeight}" To="0" Unit="Pixel">
+                                    <extensions:GridLengthAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseInOut"/>
+                                    </extensions:GridLengthAnimation.EasingFunction>
+                                </extensions:GridLengthAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <RemoveStoryboard BeginStoryboardName="slideOutAnim"/>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status.Notify}" Value="{x:Null}">
+                    <Setter Property="Height" Value="0"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- === Context Menu === -->
+        <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}" x:Key="FilterContextMenu">
+            <MenuItem Command="{Binding ToggleFilenameFilterCommand}">
+                <MenuItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="_Filter:"/>
+                        <TextBox Text="{Binding FileNameFilter, UpdateSourceTrigger=PropertyChanged}" MinWidth="80"/>
+                    </StackPanel>
+                </MenuItem.Header>
+            </MenuItem>
+        </ContextMenu>
+    </Window.Resources>
+
+    <!-- ========================================== Main Grid ========================================== -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" x:Name="menuBarRow" />
             <RowDefinition Height="*" x:Name="mainRow" />
-            <RowDefinition Height="20" x:Name="footerRow" />
+            <RowDefinition x:Name="footerRow" Style="{DynamicResource notifyRow}"/>
+            <!--Height="{Binding ActualHeight, ElementName=statusBarGrid}"-->
         </Grid.RowDefinitions>
 
         <!-- ============== Menu Bar ============== -->
@@ -62,22 +106,22 @@
                     <DataGrid.Columns>
                         <DataGridTemplateColumn SortMemberPath="Name" Width="*" IsReadOnly="True">
                             <DataGridTemplateColumn.Header>
-                                <Grid Width="Auto" Height="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Tag="{Binding ElementName=mainWindow, Path=DataContext}">
-                                    <TextBlock x:Name="fileNameHeader" Text="Name" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                                    <Grid.ContextMenu>
-                                        <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                            <MenuItem Command="{Binding ToggleFilenameFilterCommand}">
-                                                <MenuItem.Header>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="_Filter:"/>
-                                                        <TextBox Text="{Binding FileNameFilter, UpdateSourceTrigger=PropertyChanged}" MinWidth="80"/>
-                                                    </StackPanel>
-                                                </MenuItem.Header>
-                                            </MenuItem>
-                                        </ContextMenu>
-                                    </Grid.ContextMenu>
-                                </Grid>
-                                
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                    <TextBlock x:Name="fileNameHeader" Text="Name" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <ToggleButton x:Name="fileNameFilterEnabled" HorizontalAlignment="Right" Content="Filter" IsChecked="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Margin="10,0,0,0"/>
+                                    <TextBox x:Name="filterTextBox" Text="{Binding DataContext.FileNameFilter, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Visibility="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource boolToVis}, FallbackValue=Collapsed}"/>
+                                    <!--<ToggleButton.Style>Tag="{Binding ElementName=mainWindow, Path=DataContext}"
+                                            <Style TargetType="ToggleButton">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="ContextMenu"  Value="{StaticResource FilterContextMenu}" />
+                                                        <Setter Property="ContextMenu.IsOpen" Value="True" />
+                                                        <Setter Property="ContextMenu.Visibility" Value="Visible" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>-->
+                                </StackPanel>
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate DataType="models:ImageDataModel">
@@ -111,21 +155,10 @@
             </TabItem>
         </TabControl>
 
-        <!-- ============== Status Bar ========= -->
-
+        <!-- ============== Status Bar ============== -->
         <Grid Grid.Row="2" x:Name="statusBarGrid">
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Status.Notify}" Value="False">
-                            <Setter Property="Visibility" Value="Hidden" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-
-            <ProgressBar x:Name="statusProgress" Minimum="0" Maximum="1" Value="{Binding Status.ProgressPercent, FallbackValue=0}" Visibility="{Binding Status.ShowProgress, Converter={StaticResource boolToVis}, FallbackValue=Hidden}"/>
-            <TextBlock x:Name="statusText" Text="{Binding Status.Status}" Foreground="{Binding Status.TextColor}" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center">
+            <ProgressBar x:Name="statusProgress" Minimum="0" Maximum="1" Value="{Binding Status.ProgressPercent, FallbackValue=0}"  VerticalAlignment="Stretch"/>
+            <TextBlock x:Name="statusText" Text="{Binding Status.Status}" Foreground="{Binding Status.TextColor}" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Top">
             </TextBlock>
         </Grid>
     </Grid>
