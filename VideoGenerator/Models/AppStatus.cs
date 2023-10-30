@@ -40,15 +40,20 @@ namespace VideoGenerator.Models
     {
         private string _itemLabel = "Item";
         private string _itemLabelPlural = "Items";
+        private int _currentCount = 0;
+        private object _lock = new();
 
         public LoadingAppStatus (int startCount, int totalCount, string itemLabel, string itemLabelPlural)
         {
-            _startCount = startCount;
-            _totalCount = totalCount;
-            _itemLabel = itemLabel;
-            _itemLabelPlural = itemLabelPlural;
-            ProgressPercent = 0;
-            Notify = true;
+            lock (_lock)
+            {
+                _currentCount = StartCount = startCount;
+                TotalCount = totalCount;
+                _itemLabel = itemLabel;
+                _itemLabelPlural = itemLabelPlural;
+                ProgressPercent = 0;
+                Notify = true;
+            }
         }
 
         public void Dispose ()
@@ -120,10 +125,14 @@ namespace VideoGenerator.Models
                 TextColor = Brushes.Red;
                 return false;
             }
+            lock (_lock)
+            {
+                _currentCount += value;
+                ProgressPercent = (_currentCount - _startCount) / (float)loadingCount;
+                Status = $"{ProgressPercent:P1} Complete : Loaded {_currentCount - _startCount}/{loadingCount} {(_currentCount > 1 ? _itemLabelPlural : _itemLabel)}";
+            }
 
             TextColor = Brushes.Black;
-            ProgressPercent = (value - _startCount) / (float)loadingCount;
-            Status = $"{ProgressPercent:P1} Complete : Loaded {value - _startCount}/{loadingCount} {(value > 1 ? _itemLabelPlural : _itemLabel)}";
             return true;
         }
 

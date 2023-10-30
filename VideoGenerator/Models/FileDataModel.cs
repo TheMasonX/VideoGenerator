@@ -30,6 +30,8 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
     {
         if (filePath.IsNullOrEmpty()) return;
 
+        //_data = Image.FromFile(filePath);
+
         Path = filePath;
         Info = new(Path);
         Name = Info.Name;
@@ -156,7 +158,7 @@ public class ImageData : FileDataModel<Image>
 
     protected override void LoadData ()
     {
-        if (Info is null) return;
+        if (Path.IsNullOrEmpty()) return;
 
         try
         {

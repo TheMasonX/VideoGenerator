@@ -33,22 +33,25 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 
     public MainWindowVM ()
     {
-        Task.Run(() =>
-        {
-            Trace.WriteLine("Waiting!");
+        Test();
+    }
+
+    private void Test ()
+    {
+        //Task.Run(() =>
+        //{
             List<string> files = new(100);
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 50; i++)
             {
                 files.Add(@".\uv_test.png");
             }
 
-            for(int i = 0; i < 5; i++)
-            {
-                Task.Delay(3000).Wait();
-                Trace.WriteLine("Opening Files!");
-                OpenFiles(files);
-            }
-        });
+            //for(int i = 0; i < 5; i++)
+            //{
+            //Task.Delay(3000).Wait();
+            OpenFiles(files);
+            //}
+        //});
     }
 
     public void Dispose ()
@@ -85,6 +88,13 @@ public partial class MainWindowVM : ObservableObject, IDisposable
                 Settings.Default.Save();
             }
         }
+    }
+
+    private FileGridVM _fileGrid;
+    public FileGridVM FileGrid
+    {
+        get => _fileGrid ??= new FileGridVM();
+        set => SetProperty(ref _fileGrid, value);
     }
 
     private List<ImageData>? _imageFiles;
@@ -199,18 +209,25 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 
         List<Task> tasks = new(files.Count());
         Status = new LoadingAppStatus(ImageFiles.Count, ImageFiles.Count + files.Count(), "Item", "Items");
-        foreach (string file in files)
-        {
-            tasks.Add(Task.Run(() => OpenFile(file, false)));
-            Task.Delay(200).Wait();
-        }
+        //foreach (string file in files)
+        //{
+        //    tasks.Add(Task.Run(() => OpenFile(file, false)));
+        //}
+        //Task.WhenAll(tasks).Wait();
 
-        Task.WhenAll(tasks).Wait();
-        Status.Hide();
+        Task.Run(() =>
+        {
+            foreach (string file in files)
+            {
+                OpenFile(file, false);
+            }
+            Status.Hide();
+        });
+
         Application.Current.Dispatcher.BeginInvoke(() =>
         {
             ImageFilesView.CommitNew();
-            ImageFilesView.Refresh();
+            //ImageFilesView.Refresh();
         });
 
     }
@@ -219,15 +236,14 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     {
         if (file.IsNullOrEmpty() || !Regex.IsMatch(file!, InputExtensionRegex)) return;
 
-
         ImageData data = new(file!);
+        //ImageFiles.Add(data);
+        Status?.Update(1);
         Application.Current.Dispatcher.BeginInvoke(() =>
         {
             ImageFilesView.AddNewItem(data);
-            if(update) ImageFilesView.CommitNew();
+            if (update) ImageFilesView.CommitNew();
         });
-        //ImageFiles.Add(data);
-        Status?.Update(ImageFiles.Count);
     }
 
     #endregion Open

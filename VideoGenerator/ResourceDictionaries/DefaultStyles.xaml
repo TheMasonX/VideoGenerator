@@ -31,15 +31,19 @@
         <Setter Property="MinWidth" Value="100" />
         <Setter Property="MinHeight" Value="25" />
     </Style>
+    <Style TargetType="DataGridCell" x:Key="dataCellStyle">
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+    </Style>
 
-    <!--<Style TargetType="TextBlock" x:Key="dataTextCell">
+
+    <Style TargetType="TextBlock" x:Key="dataTextCell">
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <DataTemplate x:Key="dataTextCellTemplate">
-        <TextBlock Text="{Binding}" Style="{StaticResource dataTextCell}"/>
+        <TextBlock Text="{Binding Name}" Style="{StaticResource dataTextCell}"/>
     </DataTemplate>
     <Style TargetType="DataGridCell" x:Key="dataTextCellStyle">
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="ContentTemplate" Value="{StaticResource dataTextCellTemplate}" />
-    </Style>-->
+    </Style>
 </ResourceDictionary>

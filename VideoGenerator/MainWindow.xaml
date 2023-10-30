@@ -33,9 +33,9 @@
                         <RemoveStoryboard BeginStoryboardName="slideOutAnim"/>
                         <BeginStoryboard x:Name="slideInAnim">
                             <Storyboard>
-                                <extensions:GridLengthAnimation Duration="0:0:0.5" FillBehavior="HoldEnd" Storyboard.TargetProperty="Height" From="0" To="{StaticResource statusBarMaxHeight}" Unit="Pixel">
+                                <extensions:GridLengthAnimation Duration="0:0:0.25" FillBehavior="HoldEnd" Storyboard.TargetProperty="Height" From="0" To="{StaticResource statusBarMaxHeight}" Unit="Pixel">
                                     <extensions:GridLengthAnimation.EasingFunction>
-                                        <CubicEase EasingMode="EaseInOut"/>
+                                        <CubicEase EasingMode="EaseOut"/>
                                     </extensions:GridLengthAnimation.EasingFunction>
                                 </extensions:GridLengthAnimation>
                             </Storyboard>
@@ -50,7 +50,7 @@
                         <RemoveStoryboard BeginStoryboardName="slideInAnim"/>
                         <BeginStoryboard x:Name="slideOutAnim">
                             <Storyboard>
-                                <extensions:GridLengthAnimation BeginTime="0:0:0.75" Duration="0:0:1.25" FillBehavior="HoldEnd" Storyboard.TargetProperty="Height" From="{StaticResource statusBarMaxHeight}" To="0" Unit="Pixel">
+                                <extensions:GridLengthAnimation BeginTime="0:0:0.5" Duration="0:0:1.25" FillBehavior="HoldEnd" Storyboard.TargetProperty="Height" From="{StaticResource statusBarMaxHeight}" To="0" Unit="Pixel">
                                     <extensions:GridLengthAnimation.EasingFunction>
                                         <CubicEase EasingMode="EaseInOut"/>
                                     </extensions:GridLengthAnimation.EasingFunction>
@@ -86,7 +86,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" x:Name="menuBarRow" />
             <RowDefinition Height="*" x:Name="mainRow" />
-            <RowDefinition x:Name="footerRow" Style="{DynamicResource notifyRow}"/>
+            <RowDefinition x:Name="footerRow" Style="{StaticResource notifyRow}"/>
             <!--Height="{Binding ActualHeight, ElementName=statusBarGrid}"-->
         </Grid.RowDefinitions>
 
@@ -100,52 +100,53 @@
         </Menu>
 
         <!-- ============== Body Tabs ============== -->
-        <TabControl Grid.Row="1">
+        <TabControl Grid.Row="1" Grid.RowSpan="2">
             <TabItem Header="Files" x:Name="filesTab">
-                <DataGrid x:Name="filesGrid" ItemsSource="{Binding ImageFilesView}" AutoGenerateColumns="False" VerticalContentAlignment="Center" VerticalAlignment="Stretch" CanUserSortColumns="True" CanUserReorderColumns="True" CanUserDeleteRows="True" HeadersVisibility="Column" AlternatingRowBackground="LightGray">
+                <DataGrid x:Name="filesGrid" ItemsSource="{Binding ImageFilesView}" EnableRowVirtualization="False" EnableColumnVirtualization="False" RowHeight="30" AutoGenerateColumns="False" CanUserSortColumns="True" CanUserReorderColumns="True" CanUserDeleteRows="True" HeadersVisibility="Column" AlternatingRowBackground="LightGray">
                     <DataGrid.Columns>
+                        <!-- == Name Column == -->
                         <DataGridTemplateColumn SortMemberPath="Name" Width="*" IsReadOnly="True">
                             <DataGridTemplateColumn.Header>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                     <TextBlock x:Name="fileNameHeader" Text="Name" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                     <ToggleButton x:Name="fileNameFilterEnabled" HorizontalAlignment="Right" Content="Filter" IsChecked="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Margin="10,0,0,0"/>
-                                    <TextBox x:Name="filterTextBox" Text="{Binding DataContext.FileNameFilter, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Visibility="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource boolToVis}, FallbackValue=Collapsed}"/>
-                                    <!--<ToggleButton.Style>Tag="{Binding ElementName=mainWindow, Path=DataContext}"
-                                            <Style TargetType="ToggleButton">
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsChecked" Value="True">
-                                                        <Setter Property="ContextMenu"  Value="{StaticResource FilterContextMenu}" />
-                                                        <Setter Property="ContextMenu.IsOpen" Value="True" />
-                                                        <Setter Property="ContextMenu.Visibility" Value="Visible" />
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ToggleButton.Style>-->
+                                    <TextBox x:Name="filterTextBox" Text="{Binding DataContext.FileNameFilter, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                             Visibility="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource boolToVis}, FallbackValue=Collapsed}"/>
                                 </StackPanel>
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate DataType="models:ImageDataModel">
+                                <DataTemplate d:DataType="models:ImageDataModel">
                                     <TextBlock Text="{Binding Name}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+                        <!-- == Image Column == --> 
                         <DataGridTemplateColumn Header="Image" IsReadOnly="True" MinWidth="60">
                             <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate DataType="models:ImageDataModel">
-                                    <Image Source="{Binding Path}" MaxHeight="40" Stretch="Uniform"/>
+                                <DataTemplate d:DataType="models:ImageDataModel">
+                                    <Image Source="{Binding Path}" MaxHeight="25" Stretch="Uniform" RenderOptions.EdgeMode="Aliased" RenderOptions.BitmapScalingMode="LowQuality">
+                                        <Image.CacheMode>
+                                            <BitmapCache EnableClearType="False"
+                                                         RenderOptions.CachingHint="Cache"
+                                                         RenderOptions.BitmapScalingMode="LowQuality"
+                                                         SnapsToDevicePixels="True"/>
+                                        </Image.CacheMode>
+                                    </Image>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+                        <!-- == Image Size Column == -->
                         <DataGridTemplateColumn Header="Size" SortMemberPath="PixelCount" IsReadOnly="True" MinWidth="80">
                             <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate DataType="models:ImageDataModel">
+                                <DataTemplate d:DataType="models:ImageDataModel">
                                     <TextBlock Text="{Binding Data.Size}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+                        <!-- == File Size Column == -->
                         <DataGridTemplateColumn Header="File Size" SortMemberPath="Size" IsReadOnly="True" MinWidth="80">
                             <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate DataType="models:ImageDataModel">
+                                <DataTemplate d:DataType="models:ImageDataModel">
                                     <TextBlock Text="{Binding SizeFormatted}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
