@@ -1,4 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,6 +29,9 @@ public interface IFileData<T>
 
 public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDisposable
 {
+    protected static ILogger? _logger;
+    protected static ILogger Logger => _logger ??= Ioc.Default.GetService<ILogger>()!;
+
     public FileDataModel (string filePath)
     {
         if (filePath.IsNullOrEmpty()) return;
@@ -143,11 +149,12 @@ public class ImageData : FileDataModel<Image>
         try
         {
             _data.Save(outputPath);
+            Logger.Information("Saved {Name} to {Path}", Name, outputPath);
             return true;
         }
         catch (Exception ex)
         {
-            Trace.WriteLine($"Saving {Name} to {outputPath} threw error: {ex}");
+            Logger.Error(ex, "Error Saving {Name} to {Path}", Name, outputPath);
             return false;
         }
     }

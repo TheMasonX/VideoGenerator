@@ -1,6 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
+using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,16 +27,20 @@ namespace VideoGenerator.ViewModels;
 
 public partial class MainWindowVM : ObservableObject, IDisposable
 {
+    private static ILogger? _logger;
+    private static ILogger Logger => _logger ??= Ioc.Default.GetService<ILogger>()!;
+
     private const string _openFileDialogTitle = "Select Images To Convert";
     private const string _inputExtensionFilter = "Image files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png|All files (*.*)|*.*";
     public string InputExtensionRegex => @"(\.bmp)|(\.jpg)|(\.png)";
 
     private const string _saveFileDialogTitle = "Save Video File";
     private const string _outputExtensionFilter = "Video File (*.mp4)|*.mp4|All files (*.*)|*.*";
+    private const string _outputExtension = ".mp4";
 
     public MainWindowVM ()
     {
-        Test();
+        //Test ();
     }
 
     private void Test ()
@@ -41,16 +48,16 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         Task.Run(() =>
         {
             List<string> files = new(100);
-            for (int i = 0; i < 40; i++)
+            for (int i = 0; i < 20; i++)
             {
                 files.Add(@"C:\Users\TheMasonX\Pictures\uv_test.png");
             }
 
-            //for(int i = 0; i < 5; i++)
-            //{
-            //Task.Delay(3000).Wait();
-            OpenFiles(files);
-            //}
+            for (int i = 0; i < 5; i++)
+            {
+                Task.Delay(5000).Wait();
+                OpenFiles(files);
+            }
         });
     }
 
@@ -90,7 +97,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         }
     }
 
-    private FileGridVM _fileGrid;
+    private FileGridVM? _fileGrid;
     public FileGridVM FileGrid
     {
         get => _fileGrid ??= new FileGridVM();
@@ -155,13 +162,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         if (files is null || !files.Any()) return;
 
         int addCount = files.Count();
-        List<Task> tasks = new(addCount);
         Status = new LoadingStatus(FileGrid.Count, FileGrid.Count + addCount, "Item", "Items");
-        //foreach (string file in files)
-        //{
-        //    tasks.Add(Task.Run(() => OpenFile(file, false)));
-        //}
-        //Task.WhenAll(tasks).Wait();
 
         Task.Run(() =>
         {
@@ -211,7 +212,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
                 FileName = OutputFileName,
                 OverwritePrompt = true,
                 AddExtension = true,
-                DefaultExt = ".h",
+                DefaultExt = _outputExtension,
                 RestoreDirectory = true,
                 Filter = _outputExtensionFilter,
             };

@@ -13,14 +13,13 @@ public class FileModelTests
         using (ImageData imageData = new(imagePath))
         {
             Image? image = imageData.GetData();
-            FileInfo fileInfo = new (imagePath);
+            FileInfo fileInfo = new(imagePath);
 
             Assert.IsNotNull(image);
             Assert.AreEqual(fileInfo.Name, imageData.Name);
             Assert.AreEqual(fileInfo.FullName, imageData.Info!.FullName);
             Assert.AreEqual(width, image.Width);
-            Assert.AreEqual (height, image.Height);
+            Assert.AreEqual(height, image.Height);
         }
-
     }
 }

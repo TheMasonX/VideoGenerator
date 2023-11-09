@@ -2,24 +2,42 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFrameworks>net6.0-windows;net7.0-windows;net8.0-windows</TargetFrameworks>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Icons\FilterOff.ico" />
+    <None Remove="Resources\Icons\FilterOff.svg" />
+    <None Remove="Resources\Icons\FilterOn.ico" />
+    <None Remove="Resources\Icons\FilterOn.svg" />
     <None Remove="uv_test.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="uv_test.png">
+    <Content Include="Resources\uv_test.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.10" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Serilog" Version="3.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.3.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.Trace" Version="3.0.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icons\FilterOff.ico" />
+    <Resource Include="Resources\Icons\FilterOff.svg" />
+    <Resource Include="Resources\Icons\FilterOn.ico" />
+    <Resource Include="Resources\Icons\FilterOn.svg" />
   </ItemGroup>
 
   <ItemGroup>

@@ -17,18 +17,30 @@
                     <DataGridTemplateColumn.Header>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                             <TextBlock x:Name="fileNameHeader" Text="Name" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                            <ToggleButton x:Name="fileNameFilterEnabled" HorizontalAlignment="Right" Content="Filter" IsChecked="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" Margin="10,0,0,0"/>
+                            <ToggleButton x:Name="fileNameFilterEnabled" HorizontalAlignment="Right" Margin="10,0,0,0" Style="{StaticResource filterToggle}"
+                                          IsChecked="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                             <TextBox x:Name="filterTextBox" Text="{Binding DataContext.FileNameFilter, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                         </StackPanel>
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate d:DataType="models:ImageDataModel">
-                            <TextBlock Text="{Binding Name}"/>
+                            <TextBlock Text="{Binding Name}">
+                                <TextBlock.ToolTip>
+                                    <ToolTip>
+                                        <Image Source="{Binding FilePath}" MaxHeight="30" Stretch="Uniform" RenderOptions.BitmapScalingMode="LowQuality">
+                                            <Image.CacheMode>
+                                                <BitmapCache RenderOptions.BitmapScalingMode="LowQuality"
+                                                 SnapsToDevicePixels="True"/>
+                                            </Image.CacheMode>
+                                        </Image>
+                                    </ToolTip>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <!-- == Image Column == -->
-                <DataGridTemplateColumn Header="Image" IsReadOnly="True" MinWidth="60">
+                <DataGridTemplateColumn Header="Image" IsReadOnly="True" MinWidth="60" Visibility="Collapsed">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate d:DataType="models:ImageDataModel">
                             <Image Source="{Binding FilePath}" MaxHeight="30" Stretch="Uniform" RenderOptions.BitmapScalingMode="LowQuality">
@@ -44,7 +56,18 @@
                 <DataGridTemplateColumn Header="Size" SortMemberPath="PixelCount" IsReadOnly="True" MinWidth="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate d:DataType="models:ImageDataModel">
-                            <TextBlock Text="{Binding Data.Size}"/>
+                            <TextBlock Text="{Binding Data.Size}">
+                                <TextBlock.ToolTip>
+                                    <ToolTip>
+                                        <Image Source="{Binding FilePath}" MaxHeight="30" Stretch="Uniform" RenderOptions.BitmapScalingMode="LowQuality">
+                                            <Image.CacheMode>
+                                                <BitmapCache RenderOptions.BitmapScalingMode="LowQuality"
+                                                 SnapsToDevicePixels="True"/>
+                                            </Image.CacheMode>
+                                        </Image>
+                                    </ToolTip>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -52,7 +75,18 @@
                 <DataGridTemplateColumn Header="File Size" SortMemberPath="Size" IsReadOnly="True" MinWidth="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate d:DataType="models:ImageDataModel">
-                            <TextBlock Text="{Binding SizeFormatted}"/>
+                            <TextBlock Text="{Binding SizeFormatted}">
+                                <TextBlock.ToolTip>
+                                    <ToolTip>
+                                        <Image Source="{Binding FilePath}" MaxHeight="30" Stretch="Uniform" RenderOptions.BitmapScalingMode="LowQuality">
+                                            <Image.CacheMode>
+                                                <BitmapCache RenderOptions.BitmapScalingMode="LowQuality"
+                                                 SnapsToDevicePixels="True"/>
+                                            </Image.CacheMode>
+                                        </Image>
+                                    </ToolTip>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

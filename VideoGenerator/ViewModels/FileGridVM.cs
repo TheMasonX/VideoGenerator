@@ -1,12 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
+using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Threading;
 using VideoGenerator.Models;
 using VideoGenerator.Utils.Extensions;
 
@@ -14,6 +18,9 @@ namespace VideoGenerator.ViewModels;
 
 public partial class FileGridVM : ObservableObject, IDisposable
 {
+    private static ILogger? _logger;
+    private static ILogger Logger => _logger ??= Ioc.Default.GetService<ILogger>()!;
+
     private object _lock = new();
 
     public FileGridVM ()
@@ -23,13 +30,15 @@ public partial class FileGridVM : ObservableObject, IDisposable
 
     public void Dispose ()
     {
-        if(_imageFiles is not null)
+        if (_imageFiles is not null)
         {
             foreach (var file in _imageFiles)
                 file.Dispose();
         }
-        if(_imageFilesView is not null)
+        if (_imageFilesView is not null)
         {
+            //No disposal?
+            _imageFilesView = null;
         }
     }
 
@@ -46,7 +55,7 @@ public partial class FileGridVM : ObservableObject, IDisposable
     private ListCollectionView? _imageFilesView;
     public ListCollectionView ImageFilesView
     {
-        get => _imageFilesView ??= CreateFileListView(ImageFiles); 
+        get => _imageFilesView ??= CreateFileListView(ImageFiles);
         //get => _imageFilesView ??= new(ImageFiles);
         set => SetProperty(ref _imageFilesView, value);
     }
@@ -100,31 +109,21 @@ public partial class FileGridVM : ObservableObject, IDisposable
     {
         if (file.IsNullOrEmpty()) return false;
 
+        var sw = Stopwatch.StartNew();
         ImageData data = new(file!);
+        sw.Stop();
+        Logger.Information("Opened {File} in {Elapsed}ms", file, sw.ElapsedMilliseconds);
         lock (_lock)
         {
             ImageFiles.Add(data);
         }
-        //    ImageFilesView.Dispatcher.BeginInvoke(() =>
-        //{
-            
-        //        ImageFiles.Add(data);
-        //        //ImageFilesView.AddNewItem(data);
-        //    }
-        //});
-
         return true;
     }
 
     public void Refresh ()
     {
-        ImageFilesView.Dispatcher.BeginInvoke(() =>
-        {
-            lock (_lock)
-            {
-                ImageFilesView.Refresh();
-            }
-        });
+        //ImageFilesView.Refresh();
+        ImageFilesView.Dispatcher.Invoke(ImageFilesView.Refresh);
     }
 
 
@@ -134,6 +133,8 @@ public partial class FileGridVM : ObservableObject, IDisposable
 
     private ListCollectionView CreateFileListView<T>(List<T> files)
     {
+        if (Application.Current is null) return new ListCollectionView(files); //In case this is being run outside the application like during benchmarking
+
         return Application.Current.Dispatcher.Invoke(() =>
         {
             var view = new ListCollectionView(files) { Filter = FilterImageFileNames };
