@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VideoGenerator.Models;
+using VideoGenerator.ViewModels;
 
 namespace VideoGenerator.Views
 {
@@ -23,6 +25,12 @@ namespace VideoGenerator.Views
         public FileGrid ()
         {
             InitializeComponent();
+        }
+
+        private void filesGrid_UnloadingRow (object sender, DataGridRowEventArgs e)
+        {
+            if(e.Row.Item is IDisposable data) data.Dispose();
+            if (DataContext is FileGridVM vm) vm.RefreshCounts();
         }
     }
 }

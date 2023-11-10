@@ -82,7 +82,10 @@ public partial class FileGridVM : ObservableObject, IDisposable
         }
     }
 
-    public int Count => ImageFilesView?.Count ?? 0;
+    public bool EnableFileFilter => EnableFileNameFilter; // In case we need more filter options than just the name
+
+    public int Count => ImageFiles?.Count ?? 0;
+    public int VisibleCount => ImageFilesView?.Count ?? 0;
 
     private bool _isFilterOpen;
     public bool IsFilterOpen
@@ -117,6 +120,7 @@ public partial class FileGridVM : ObservableObject, IDisposable
         {
             ImageFiles.Add(data);
         }
+        RefreshCounts();
         return true;
     }
 
@@ -124,8 +128,15 @@ public partial class FileGridVM : ObservableObject, IDisposable
     {
         //ImageFilesView.Refresh();
         ImageFilesView.Dispatcher.Invoke(ImageFilesView.Refresh);
+        OnPropertyChanged(nameof(EnableFileFilter));
+        OnPropertyChanged(nameof(VisibleCount));
     }
 
+    public void RefreshCounts()
+    {
+        OnPropertyChanged(nameof(Count));
+        OnPropertyChanged(nameof(VisibleCount));
+    }
 
     #endregion Public Methods
 

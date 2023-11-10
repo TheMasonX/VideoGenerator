@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFrameworks>net6.0-windows;net7.0-windows;net8.0-windows</TargetFrameworks>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
@@ -13,6 +12,7 @@
     <None Remove="Resources\Icons\FilterOff.svg" />
     <None Remove="Resources\Icons\FilterOn.ico" />
     <None Remove="Resources\Icons\FilterOn.svg" />
+    <None Remove="Resources\Icons\Save.ico" />
     <None Remove="uv_test.png" />
   </ItemGroup>
 
@@ -38,6 +38,7 @@
     <Resource Include="Resources\Icons\FilterOff.svg" />
     <Resource Include="Resources\Icons\FilterOn.ico" />
     <Resource Include="Resources\Icons\FilterOn.svg" />
+    <Resource Include="Resources\Icons\Save.ico" />
   </ItemGroup>
 
   <ItemGroup>

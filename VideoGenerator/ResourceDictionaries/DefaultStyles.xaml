@@ -31,6 +31,13 @@
         <Setter Property="MinWidth" Value="100" />
         <Setter Property="MinHeight" Value="25" />
     </Style>
+
+    <Style TargetType="DataGrid">
+        <Setter Property="CanUserSortColumns" Value="True" />
+        <Setter Property="AutoGenerateColumns" Value="False" />
+        <Setter Property="HeadersVisibility" Value="Column" />
+    </Style>
+    
     <Style TargetType="DataGridCell" x:Key="dataCellStyle">
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Stretch" />

@@ -9,8 +9,35 @@
              x:Name="fileGridControl"
              d:DataContext="{x:Type viewmodels:FileGridVM}"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style TargetType="Image" x:Key="imageTooltip">
+            <Setter Property="MaxHeight" Value="100" />
+            <Setter Property="Stretch" Value="Uniform" />
+            <Setter Property="StretchDirection" Value="Both" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="3" ShadowDepth="1"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="RenderOptions.BitmapScalingMode" Value="LowQuality" />
+            <Setter Property="CacheMode">
+                <Setter.Value>
+                    <BitmapCache RenderOptions.BitmapScalingMode="LowQuality" SnapsToDevicePixels="True"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- ========================================== Main Grid ========================================== -->
     <Grid>
-        <DataGrid x:Name="filesGrid" ItemsSource="{Binding ImageFilesView}" EnableRowVirtualization="False" EnableColumnVirtualization="False" RowHeight="30" AutoGenerateColumns="False" CanUserSortColumns="True" CanUserReorderColumns="True" CanUserDeleteRows="True" HeadersVisibility="Column" AlternatingRowBackground="LightGray">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="fileGridRow" Height="*" />
+            <RowDefinition x:Name="infoRow" Height="30" />
+        </Grid.RowDefinitions>
+
+        <!-- ========================================== File Grid ========================================== -->
+        <DataGrid x:Name="filesGrid" Grid.Row="0" ItemsSource="{Binding ImageFilesView}" UnloadingRow="filesGrid_UnloadingRow" EnableRowVirtualization="False" EnableColumnVirtualization="False" RowHeight="30" 
+                  AutoGenerateColumns="False" CanUserSortColumns="True" CanUserReorderColumns="True" CanUserDeleteRows="True" HeadersVisibility="Column" AlternatingRowBackground="LightGray">
             <DataGrid.Columns>
                 <!-- == Name Column == -->
                 <DataGridTemplateColumn SortMemberPath="Name" Width="*" IsReadOnly="True">
@@ -18,8 +45,10 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                             <TextBlock x:Name="fileNameHeader" Text="Name" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             <ToggleButton x:Name="fileNameFilterEnabled" HorizontalAlignment="Right" Margin="10,0,0,0" Style="{StaticResource filterToggle}"
-                                          IsChecked="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
-                            <TextBox x:Name="filterTextBox" Text="{Binding DataContext.FileNameFilter, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                                          IsChecked="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                          Visibility="{Binding DataContext.ImageFilesView.CanFilter, Converter={StaticResource boolToVis}, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                            <TextBox x:Name="filterTextBox" Text="{Binding DataContext.FileNameFilter, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                     Visibility="{Binding DataContext.ImageFilesView.CanFilter, Converter={StaticResource boolToVis}, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                         </StackPanel>
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
@@ -27,12 +56,7 @@
                             <TextBlock Text="{Binding Name}">
                                 <TextBlock.ToolTip>
                                     <ToolTip>
-                                        <Image Source="{Binding FilePath}" MaxHeight="30" Stretch="Uniform" RenderOptions.BitmapScalingMode="LowQuality">
-                                            <Image.CacheMode>
-                                                <BitmapCache RenderOptions.BitmapScalingMode="LowQuality"
-                                                 SnapsToDevicePixels="True"/>
-                                            </Image.CacheMode>
-                                        </Image>
+                                        <Image Source="{Binding FilePath}" Style="{StaticResource imageTooltip}" />
                                     </ToolTip>
                                 </TextBlock.ToolTip>
                             </TextBlock>
@@ -45,8 +69,7 @@
                         <DataTemplate d:DataType="models:ImageDataModel">
                             <Image Source="{Binding FilePath}" MaxHeight="30" Stretch="Uniform" RenderOptions.BitmapScalingMode="LowQuality">
                                 <Image.CacheMode>
-                                    <BitmapCache RenderOptions.BitmapScalingMode="LowQuality"
-                                                 SnapsToDevicePixels="True"/>
+                                    <BitmapCache RenderOptions.BitmapScalingMode="LowQuality" SnapsToDevicePixels="True"/>
                                 </Image.CacheMode>
                             </Image>
                         </DataTemplate>
@@ -59,12 +82,7 @@
                             <TextBlock Text="{Binding Data.Size}">
                                 <TextBlock.ToolTip>
                                     <ToolTip>
-                                        <Image Source="{Binding FilePath}" MaxHeight="30" Stretch="Uniform" RenderOptions.BitmapScalingMode="LowQuality">
-                                            <Image.CacheMode>
-                                                <BitmapCache RenderOptions.BitmapScalingMode="LowQuality"
-                                                 SnapsToDevicePixels="True"/>
-                                            </Image.CacheMode>
-                                        </Image>
+                                        <Image Source="{Binding FilePath}" Style="{StaticResource imageTooltip}" />
                                     </ToolTip>
                                 </TextBlock.ToolTip>
                             </TextBlock>
@@ -78,12 +96,7 @@
                             <TextBlock Text="{Binding SizeFormatted}">
                                 <TextBlock.ToolTip>
                                     <ToolTip>
-                                        <Image Source="{Binding FilePath}" MaxHeight="30" Stretch="Uniform" RenderOptions.BitmapScalingMode="LowQuality">
-                                            <Image.CacheMode>
-                                                <BitmapCache RenderOptions.BitmapScalingMode="LowQuality"
-                                                 SnapsToDevicePixels="True"/>
-                                            </Image.CacheMode>
-                                        </Image>
+                                        <Image Source="{Binding FilePath}" Style="{StaticResource imageTooltip}" />
                                     </ToolTip>
                                 </TextBlock.ToolTip>
                             </TextBlock>
@@ -92,5 +105,17 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+
+
+        <!-- ========================================== File Info ========================================== -->
+        <Grid Grid.Row="1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Label Content="Open Files:"/>
+                <TextBlock Text="{Binding Count, FallbackValue=0}"/>
+
+                <Label Content="Displayed Files:" Visibility="{Binding EnableFileFilter, Converter={StaticResource boolToVis}, FallbackValue=Visible}"/>
+                <TextBlock Text="{Binding VisibleCount, FallbackValue=0}"  Visibility="{Binding EnableFileFilter, Converter={StaticResource boolToVis}, FallbackValue=Visible}"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>
