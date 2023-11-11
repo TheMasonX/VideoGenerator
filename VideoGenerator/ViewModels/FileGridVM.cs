@@ -43,6 +43,7 @@ public partial class FileGridVM : ObservableObject, IDisposable
     }
 
 
+
     #region Properties
 
     private List<ImageData>? _imageFiles;
@@ -50,6 +51,13 @@ public partial class FileGridVM : ObservableObject, IDisposable
     {
         get => _imageFiles ??= new();
         set => SetProperty(ref _imageFiles, value);
+    }
+
+    private ImageData? _selectedImageFile;
+    public ImageData? SelectedImageFile
+    {
+        get => _selectedImageFile;
+        set => SetProperty(ref _selectedImageFile, value);
     }
 
     private ListCollectionView? _imageFilesView;

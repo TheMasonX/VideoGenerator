@@ -1,5 +1,6 @@
 using System.Drawing;
 using VideoGenerator.Models;
+using VideoGenerator.ViewModels;
 
 namespace VideoGenerator.Tests;
 
@@ -21,5 +22,13 @@ public class FileModelTests
             Assert.AreEqual(width, image.Width);
             Assert.AreEqual(height, image.Height);
         }
+    }
+
+    [DataTestMethod]
+    [DataRow(@".\uv_test.png", 4096, 4096, DisplayName = "ImageEditorTest")]
+    public void ImageEditorTest (string imagePath, int width, int height)
+    {
+        ImageEditorVM editorVM = new ImageEditorVM();
+        editorVM.OpenImage(new(imagePath));
     }
 }

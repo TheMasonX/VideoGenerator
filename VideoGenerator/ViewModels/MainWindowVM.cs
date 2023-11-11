@@ -104,6 +104,13 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         set => SetProperty(ref _fileGrid, value);
     }
 
+    private ImageEditorVM? _imageEditor;
+    public ImageEditorVM ImageEditor
+    {
+        get => _imageEditor ??= new ImageEditorVM();
+        set => SetProperty(ref _imageEditor, value);
+    }
+
     private IAppStatus? _status;
     public IAppStatus? Status
     {
