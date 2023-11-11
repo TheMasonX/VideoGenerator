@@ -16,43 +16,51 @@ using System.Windows.Shapes;
 using VideoGenerator.Models;
 using VideoGenerator.ViewModels;
 
-namespace VideoGenerator.Views
+namespace VideoGenerator.Views;
+
+/// <summary>
+/// Interaction logic for ImageEditor.xaml
+/// </summary>
+public partial class ImageEditor : UserControl
 {
-    /// <summary>
-    /// Interaction logic for ImageEditor.xaml
-    /// </summary>
-    public partial class ImageEditor : UserControl
+    public ImageEditor ()
     {
-        public ImageEditor ()
+        InitializeComponent();
+    }
+
+    public ImageData SelectedItem
+    {
+        get => (ImageData)GetValue(SelectedItemProperty);
+        set => SetValue(SelectedItemProperty, value);
+    }
+
+    public static readonly DependencyProperty SelectedItemProperty = DependencyProperty.Register("SelectedItem", typeof(ImageData), typeof(ImageEditor), new PropertyMetadata(null, OnSelectedItemChanged));
+
+    private static void OnSelectedItemChanged (DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if(d is not ImageEditor editor)
         {
-            InitializeComponent();
+            Debug.Fail($"d {d} is {d.GetType()}");
+            return;
         }
 
-        public ImageData SelectedItem
+        if(editor.DataContext is not ImageEditorVM vm)
         {
-            get => (ImageData)GetValue(SelectedItemProperty);
-            set => SetValue(SelectedItemProperty, value);
+            Debug.Fail($"editor.DataContext {editor.DataContext} is {editor.DataContext.GetType()}");
+            return;
         }
 
-        public static readonly DependencyProperty SelectedItemProperty = DependencyProperty.Register("SelectedItem", typeof(ImageData), typeof(ImageEditor), new PropertyMetadata(null, OnSelectedItemChanged));
+        vm.OpenImage(e.NewValue as ImageData);
+    }
 
-        private static void OnSelectedItemChanged (DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if(d is not ImageEditor editor)
-            {
-                Debug.Fail($"d {d} is {d.GetType()}");
-                return;
-            }
+    private void NumericBox_AccessKeyPressed (object sender, AccessKeyPressedEventArgs e)
+    {
 
-            if(editor.DataContext is not ImageEditorVM vm)
-            {
-                Debug.Fail($"editor.DataContext {editor.DataContext} is {editor.DataContext.GetType()}");
-                return;
-            }
+    }
 
-            vm.OpenImage(e.NewValue as ImageData);
-        }
-
-        
+    private void NumericBox_KeyTipAccessed (object sender, KeyTipAccessedEventArgs e)
+    {
+        e.Handled = true;
+        Focus();
     }
 }

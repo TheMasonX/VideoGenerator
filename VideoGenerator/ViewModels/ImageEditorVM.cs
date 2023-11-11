@@ -1,4 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Input;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VideoGenerator.Models;
@@ -17,6 +21,9 @@ namespace VideoGenerator.ViewModels;
 
 public class ImageEditorVM : ObservableObject, IDisposable
 {
+    private static ILogger? _logger;
+    private static ILogger Logger => _logger ??= Ioc.Default.GetService<ILogger>()!;
+
     public ImageEditorVM ()
     {
 
@@ -46,7 +53,11 @@ public class ImageEditorVM : ObservableObject, IDisposable
     public WriteableBitmap? Bitmap
     {
         get => _bitmap;
-        set => SetProperty(ref _bitmap, value);
+        set
+        {
+            if (SetProperty(ref _bitmap, value) && value is not null)
+                ResetControls();
+        }
     }
 
     private ObservableCollection<IImageTool>? _imageTools;
@@ -56,11 +67,62 @@ public class ImageEditorVM : ObservableObject, IDisposable
         set => SetProperty(ref _imageTools, value);
     }
 
+    private double _minZoom = 0.01;
+    public double MinZoom => _minZoom;
+    private double _maxZoom = 5;
+    public double MaxZoom => _maxZoom;
+
+    private double _zoom = 1;
+    public double Zoom
+    {
+        get => _zoom;
+        set => SetProperty(ref _zoom, value);
+    }
+
+    private double _centerX = .5;
+    public double CenterX
+    {
+        get => _centerX;
+        set => SetProperty(ref _centerX, value);
+    }
+
+    private double _centerY = .5;
+    public double CenterY
+    {
+        get => _centerY;
+        set => SetProperty(ref _centerY, value);
+    }
+
+    private double _actualWidth = 0;
+    public double ActualWidth
+    {
+        get => _actualWidth;
+        set => SetProperty(ref _actualWidth, value);
+    }
+
+    private double _actualHeight = 0;
+    public double ActualHeight
+    {
+        get => _actualHeight;
+        set => SetProperty(ref _actualHeight, value);
+    }
+
     #endregion Properties
 
     #region Commands
 
-    //Commands
+    private RelayCommand<RoutedEventArgs>? _mouseWheelCommand;
+    public ICommand MouseWheelCommand => _mouseWheelCommand ??= new RelayCommand<RoutedEventArgs>(OnMouseWheel);
+
+    public void OnMouseWheel(RoutedEventArgs? e)
+    {
+        if (e is not MouseWheelEventArgs args) return;
+        var delta = args.Delta;
+        var oldZoom = Zoom;
+        Zoom = Math.Clamp(Zoom + delta * .001, MinZoom, MaxZoom);
+        
+        Logger.Debug("Delta {Delta}, Zoom went from {OldZoom} to {NewZoom}", delta, oldZoom, Zoom);
+    }
 
     #endregion Commands
 
@@ -74,6 +136,14 @@ public class ImageEditorVM : ObservableObject, IDisposable
         return true;
     }
 
+    public void ResetControls()
+    {
+        if (Bitmap is null) return;
+
+        CenterX = CenterY = .5;
+        Zoom = 1;
+    }
+
     #endregion Public Methods
 
     #region Private Methods
@@ -82,24 +152,7 @@ public class ImageEditorVM : ObservableObject, IDisposable
     {
         if (image is null || image.Width <= 0 || image.Height <= 0) return;
 
-        var format = image.PixelFormat.Convert();
-        WriteableBitmap newBitmap = new(image.Width, image.Height, image.PhysicalDimension.Width, image.PhysicalDimension.Height, format, null);
-        //WriteableBitmap newBitmap = new(image.Width, image.Height, image.PhysicalDimension.Width, image.PhysicalDimension.Height, PixelFormats.Default, null);
-        newBitmap.Lock();
-        try
-        {
-            using (Bitmap temp = new Bitmap(image.Width, image.Height, newBitmap.BackBufferStride, image.PixelFormat, newBitmap.BackBuffer))
-            using (Graphics graphics = Graphics.FromImage(temp))
-            {
-                graphics.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height));
-                newBitmap.AddDirtyRect(new Int32Rect(0,0, image.Width,image.Height));
-            }
-        }
-        finally
-        {
-            newBitmap.Unlock();
-            Bitmap = newBitmap;
-        }
+        Bitmap = image.ToWriteableBitmap();
     }
 
     #endregion Private Methods

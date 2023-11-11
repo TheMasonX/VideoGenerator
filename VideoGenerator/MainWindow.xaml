@@ -109,7 +109,7 @@
                 <views:FileGrid x:Name="fileGrid" DataContext="{Binding FileGrid}"/>
             </TabItem>
             <TabItem Header="Editor" x:Name="imageEditorTab">
-                <views:ImageEditor x:Name="imageEditor" DataContext="{Binding ImageEditor}" SelectedItem="{Binding ElementName=fileGrid, Path=DataContext.SelectedImageFile}"/>
+                <views:ImageEditor x:Name="imageEditorControl" DataContext="{Binding ImageEditor}" SelectedItem="{Binding ElementName=fileGrid, Path=DataContext.SelectedImageFile}"/>
             </TabItem>
         </TabControl>
 

@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:VideoGenerator.Utils.Controls"
                     x:Name="Styles">
     <Style TargetType="Button">
         <Setter Property="MinWidth" Value="60" />
@@ -52,6 +53,15 @@
     </DataTemplate>
     <Style TargetType="DataGridCell" x:Key="dataTextCellStyle">
         <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="controls:NumericBox">
+        <Setter Property="MinWidth" Value="35" />
+        <Setter Property="MaxWidth" Value="80" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="AutoWordSelection" Value="True" />
+        <Setter Property="Padding" Value="5,2"/>
     </Style>
 
     <Style TargetType="ToggleButton" x:Key="filterToggle">

@@ -139,6 +139,8 @@ public class ImageData : FileDataModel<Image>
 
     public override Image? GetData ()
     {
+        if(_data is null)
+            LoadData();
         return _data;
     }
 

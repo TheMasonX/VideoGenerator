@@ -41,6 +41,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     public MainWindowVM ()
     {
         //Test ();
+        OpenFiles(new string[] { @"C:\Users\TheMasonX\Pictures\uv_test.png" });
     }
 
     private void Test ()
