@@ -40,6 +40,9 @@
                     <!--<i:Interaction.Behaviors>
                         <i:MouseDragElementBehavior/>
                     </i:Interaction.Behaviors>-->
+                    <i:Interaction.Behaviors>
+                        <i:TranslateZoomRotateBehavior SupportedGestures="All"/>
+                    </i:Interaction.Behaviors>
                     <controls:ImageEx.RenderTransform>
                         <ScaleTransform ScaleX="{Binding Zoom, FallbackValue=1}" ScaleY="{Binding Zoom, FallbackValue=1}">
                             <ScaleTransform.CenterX>

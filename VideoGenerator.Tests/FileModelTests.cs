@@ -30,5 +30,7 @@ public class FileModelTests
     {
         ImageEditorVM editorVM = new ImageEditorVM();
         editorVM.OpenImage(new(imagePath));
+        Assert.AreEqual(width, editorVM.Bitmap.PixelWidth);
+        Assert.AreEqual(height, editorVM.Bitmap.PixelHeight);
     }
 }

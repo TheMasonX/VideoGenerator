@@ -8,7 +8,7 @@ using OldColor = System.Drawing.Color;
 using NewColor = System.Windows.Media.Color;
 using NewColors = System.Windows.Media.Colors;
 using VideoGenerator.Utils.Extensions;
-using static System.Resources.ResXFileRef;
+
 namespace VideoGenerator.Tests;
 
 public static class AssertEx
