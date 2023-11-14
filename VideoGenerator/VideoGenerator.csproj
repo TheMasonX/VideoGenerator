@@ -13,6 +13,7 @@
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <IsPublishable>True</IsPublishable>
     <StartupObject>VideoGenerator.App</StartupObject>
+    <SignAssembly>True</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>
