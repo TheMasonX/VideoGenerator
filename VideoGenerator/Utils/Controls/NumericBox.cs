@@ -14,9 +14,6 @@ namespace VideoGenerator.Utils.Controls;
 
 public class NumericBox : TextBox
 {
-    private static ILogger? _logger;
-    private static ILogger Logger => _logger ??= Ioc.Default.GetService<ILogger>()!;
-
     public NumericBox() : base()
     {
         PreviewTextInput += NumericBox_PreviewTextInput;
@@ -53,7 +50,7 @@ public class NumericBox : TextBox
         double offsetMagnitude = offset.Length - minDragDistance;
         if (offsetMagnitude <= 0) return;
 
-        Logger.Debug("{Magnitude}", offsetMagnitude);
+        Log.Debug("{Magnitude}", offsetMagnitude);
     }
 
     public static readonly Regex IntRegex = new(@"[\d]{1,}", RegexOptions.Compiled);

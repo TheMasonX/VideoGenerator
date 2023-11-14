@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:controls="clr-namespace:VideoGenerator.Utils.Controls"
+                    xmlns:views="clr-namespace:VideoGenerator.Views"
                     x:Name="Styles">
     <Style TargetType="Button">
         <Setter Property="MinWidth" Value="60" />

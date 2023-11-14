@@ -29,9 +29,6 @@ public interface IFileData<T>
 
 public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDisposable
 {
-    protected static ILogger? _logger;
-    protected static ILogger Logger => _logger ??= Ioc.Default.GetService<ILogger>()!;
-
     public FileDataModel (string filePath)
     {
         if (filePath.IsNullOrEmpty()) return;
@@ -151,12 +148,12 @@ public class ImageData : FileDataModel<Image>
         try
         {
             _data.Save(outputPath);
-            Logger.Information("Saved {Name} to {Path}", Name, outputPath);
+            Log.Information("Saved {Name} to {Path}", Name, outputPath);
             return true;
         }
         catch (Exception ex)
         {
-            Logger.Error(ex, "Error Saving {Name} to {Path}", Name, outputPath);
+            Log.Error(ex, "Error Saving {Name} to {Path}", Name, outputPath);
             return false;
         }
     }

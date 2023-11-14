@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using Serilog;
-using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,9 +26,6 @@ namespace VideoGenerator.ViewModels;
 
 public partial class MainWindowVM : ObservableObject, IDisposable
 {
-    private static ILogger? _logger;
-    private static ILogger Logger => _logger ??= Ioc.Default.GetService<ILogger>()!;
-
     private const string _openFileDialogTitle = "Select Images To Convert";
     private const string _inputExtensionFilter = "Image files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png|All files (*.*)|*.*";
     public string InputExtensionRegex => @"(\.bmp)|(\.jpg)|(\.png)";
@@ -38,9 +34,10 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     private const string _outputExtensionFilter = "Video File (*.mp4)|*.mp4|All files (*.*)|*.*";
     private const string _outputExtension = ".mp4";
 
+    //public MainWindowVM ()
     public MainWindowVM ()
     {
-        //Test ();
+        //Test();
         OpenFiles(new string[] { @"C:\Users\TheMasonX\Pictures\uv_test.png" });
     }
 
@@ -132,7 +129,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
             {
                 Title = _openFileDialogTitle,
                 RestoreDirectory = true,
-                CheckFileExists = true,
+                //CheckFileExists = true,
                 Multiselect = true,
                 Filter = _inputExtensionFilter,
             };

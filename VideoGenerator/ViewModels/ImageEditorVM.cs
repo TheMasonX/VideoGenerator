@@ -21,12 +21,8 @@ namespace VideoGenerator.ViewModels;
 
 public class ImageEditorVM : ObservableObject, IDisposable
 {
-    private static ILogger? _logger;
-    private static ILogger Logger => _logger ??= Ioc.Default.GetService<ILogger>()!;
-
     public ImageEditorVM ()
     {
-
     }
 
 
@@ -121,7 +117,7 @@ public class ImageEditorVM : ObservableObject, IDisposable
         var oldZoom = Zoom;
         Zoom = Math.Clamp(Zoom + delta * .001, MinZoom, MaxZoom);
         
-        Logger.Debug("Delta {Delta}, Zoom went from {OldZoom} to {NewZoom}", delta, oldZoom, Zoom);
+        Log.Debug("Delta {Delta}, Zoom went from {OldZoom} to {NewZoom}", delta, oldZoom, Zoom);
     }
 
     #endregion Commands

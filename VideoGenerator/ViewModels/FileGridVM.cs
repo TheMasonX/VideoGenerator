@@ -18,9 +18,6 @@ namespace VideoGenerator.ViewModels;
 
 public partial class FileGridVM : ObservableObject, IDisposable
 {
-    private static ILogger? _logger;
-    private static ILogger Logger => _logger ??= Ioc.Default.GetService<ILogger>()!;
-
     private object _lock = new();
 
     public FileGridVM ()
@@ -34,12 +31,9 @@ public partial class FileGridVM : ObservableObject, IDisposable
         {
             foreach (var file in _imageFiles)
                 file.Dispose();
+            _imageFiles.Clear();
         }
-        if (_imageFilesView is not null)
-        {
-            //No disposal?
-            _imageFilesView = null;
-        }
+        _imageFilesView = null;
     }
 
 
@@ -123,7 +117,7 @@ public partial class FileGridVM : ObservableObject, IDisposable
         var sw = Stopwatch.StartNew();
         ImageData data = new(file!);
         sw.Stop();
-        Logger.Information("Opened {File} in {Elapsed}ms", file, sw.ElapsedMilliseconds);
+        Log.Information("Opened {File} in {Elapsed}ms", file, sw.ElapsedMilliseconds);
         lock (_lock)
         {
             ImageFiles.Add(data);

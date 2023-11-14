@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:VideoGenerator.Views"
+             xmlns:views="clr-namespace:VideoGenerator.Views"
              xmlns:viewmodels="clr-namespace:VideoGenerator.ViewModels" 
              xmlns:converters="clr-namespace:VideoGenerator.Utils.Converters"
              xmlns:controls="clr-namespace:VideoGenerator.Utils.Controls"
@@ -33,23 +33,26 @@
             </Grid.RowDefinitions>
 
             <!-- ========================================== Image ========================================== -->
-            <Grid Grid.Row="1" Grid.RowSpan="2" Background="Gray" ClipToBounds="True">
+            <Grid Grid.Row="1" Grid.RowSpan="2" Background="Gray" ClipToBounds="True" >
                 <controls:ImageEx x:Name="imagePreview" Source="{Binding Bitmap, FallbackValue='C:\\Users\\TheMasonX\\Pictures\\uv_test.png'}"
                   ActualWidthValue="{Binding Path=DataContext.ActualWidth, Mode=OneWayToSource, RelativeSource={RelativeSource AncestorType=UserControl}}"
                   ActualHeightValue="{Binding Path=DataContext.ActualHeight, Mode=OneWayToSource, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <!--<i:Interaction.Behaviors>
+                        <i:MouseDragElementBehavior/>
+                    </i:Interaction.Behaviors>-->
                     <controls:ImageEx.RenderTransform>
                         <ScaleTransform ScaleX="{Binding Zoom, FallbackValue=1}" ScaleY="{Binding Zoom, FallbackValue=1}">
                             <ScaleTransform.CenterX>
                                 <MultiBinding Converter="{StaticResource math}" ConverterParameter="x*y" Mode="OneWay">
                                     <Binding Path="DataContext.CenterX" RelativeSource="{RelativeSource AncestorType=UserControl}"  FallbackValue="0.5"/>
-                                    <Binding Path="ActualWidth" ElementName="imagePreview" />
+                                    <Binding Path="DataContext.ActualWidth" Mode="OneWay" RelativeSource="{RelativeSource AncestorType=UserControl}" />
                                 </MultiBinding>
                             </ScaleTransform.CenterX>
 
                             <ScaleTransform.CenterY>
                                 <MultiBinding Converter="{StaticResource math}" ConverterParameter="x*y" Mode="OneWay">
                                     <Binding Path="DataContext.CenterY" RelativeSource="{RelativeSource AncestorType=UserControl}" FallbackValue="0.5"/>
-                                    <Binding Path="ActualHeight" ElementName="imagePreview" />
+                                    <Binding Path="DataContext.ActualHeight" Mode="OneWay" RelativeSource="{RelativeSource AncestorType=UserControl}" />
                                 </MultiBinding>
                             </ScaleTransform.CenterY>
                         </ScaleTransform>
@@ -63,9 +66,6 @@
                 <controls:NumericBox Text="{Binding CenterX, StringFormat={}{0:N2}}" KeyTipService.KeyTip="X" KeyTipService.KeyTipAccessed="NumericBox_KeyTipAccessed" IsFloat="True"/>
                 <Label Content="Center Y:"/>
                 <controls:NumericBox Text="{Binding CenterY, StringFormat={}{0:N2}}" KeyTipService.KeyTip="Y" KeyTipService.KeyTipAccessed="NumericBox_KeyTipAccessed" IsFloat="True"/>
-
-                <Label Content="Center Y:"/>
-                <controls:NumericBox Text="{Binding Zoom, StringFormat={}{0:N2}}" KeyTipService.KeyTip="Z" KeyTipService.KeyTipAccessed="NumericBox_KeyTipAccessed" IsFloat="True"/>
                 <Slider Minimum="{Binding MinZoom, FallbackValue=.01}" Maximum="{Binding MaxZoom, FallbackValue=5}" Value="{Binding Zoom}" Width="150" VerticalAlignment="Center">
                     <Slider.Effect>
                         <DropShadowEffect BlurRadius="10" ShadowDepth="2"/>

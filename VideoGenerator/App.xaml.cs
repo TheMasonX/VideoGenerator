@@ -8,6 +8,7 @@ using System.Windows;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Serilog.Core;
 using Serilog.Events;
 
 namespace VideoGenerator;
@@ -17,23 +18,17 @@ namespace VideoGenerator;
 /// </summary>
 public partial class App : Application
 {
-    ILogger Logger { get; set; }
     private string _logFile = $"./VideoGenerator.Log";
     private LogEventLevel _traceLogLevel = LogEventLevel.Verbose;
 
     public App () : base ()
     {
-        Logger = new LoggerConfiguration()
+        Log.Logger = new LoggerConfiguration()
             .Enrich.WithMachineName()
             .Enrich.WithEnvironmentName()
             .Enrich.WithEnvironmentUserName()
             .WriteTo.File(_logFile)
             .WriteTo.Trace(_traceLogLevel)
             .CreateLogger();
-
-        Ioc.Default.ConfigureServices(
-            new ServiceCollection()
-            .AddSingleton(Logger)
-            .BuildServiceProvider());
     }
 }

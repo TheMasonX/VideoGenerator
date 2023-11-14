@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoGenerator", ".\VideoGenerator\VideoGenerator.csproj", "{C9051544-5B1A-4B7B-9452-C79152579975}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoGenerator", "VideoGenerator\VideoGenerator.csproj", "{C9051544-5B1A-4B7B-9452-C79152579975}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoGenerator.Tests", ".\VideoGenerator.Tests\VideoGenerator.Tests.csproj", "{92AB59D6-B5A3-47C4-90E8-AED94C16B507}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoGenerator.Tests", "VideoGenerator.Tests\VideoGenerator.Tests.csproj", "{92AB59D6-B5A3-47C4-90E8-AED94C16B507}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
