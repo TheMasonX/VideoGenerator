@@ -23,7 +23,7 @@ public class Benchmarks
     [TestInitialize]
     public void Setup ()
     {
-        bitmapImage = Image.FromFile("C:\\Users\\TheMasonX\\Pictures\\uv_test.png");
+        bitmapImage = Image.FromFile(".\\uv_test.png");
     }
 
     [GlobalCleanup]
