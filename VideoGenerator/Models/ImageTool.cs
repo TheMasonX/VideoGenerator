@@ -12,7 +12,7 @@ namespace VideoGenerator.Models;
 public interface IImageTool
 {
     string Name { get; }
-    string Description { get; }
+    string? Description { get; }
     string IconPath { get; }
 }
 
@@ -32,9 +32,9 @@ public class ImageTool : ObservableObject, IImageTool, IDisposable
     #region Properties
 
     private string? _name;
-    public string? Name
+    public string Name
     {
-        get => _name;
+        get => _name = "";
         private set => SetProperty(ref _name, value);
     }
 
