@@ -6,14 +6,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <StartupObject></StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="specflow.actions.json" />
+    <None Remove="testhost.runtimeconfig.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="specflow.actions.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testhost.runtimeconfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
