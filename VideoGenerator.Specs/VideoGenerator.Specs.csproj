@@ -11,20 +11,16 @@
 
   <ItemGroup>
     <None Remove="specflow.actions.json" />
-    <None Remove="testhost.runtimeconfig.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="specflow.actions.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="testhost.runtimeconfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="Microsoft.TestPlatform" Version="17.8.0" />
     <PackageReference Include="MSTest" Version="3.1.1" />
     <PackageReference Include="SpecFlow" Version="3.9.74" />

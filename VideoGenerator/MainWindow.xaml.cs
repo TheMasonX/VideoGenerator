@@ -49,7 +49,12 @@ public partial class MainWindow : Window
         GetFiles(e, vm.InputExtensionRegex);
     }
 
-    private IEnumerable<string>? GetFiles(DragEventArgs e, string regex)
+    private IQueryable<string>? GetFiles (DragEventArgs e, string regex)
+    {
+        return GetFiles(e, new Regex(regex));
+    }
+
+    private IQueryable<string>? GetFiles (DragEventArgs e, Regex regex)
     {
         if (!e.Data.GetDataPresent(DataFormats.FileDrop))
         {
@@ -57,9 +62,8 @@ public partial class MainWindow : Window
             e.Handled = true;
             return null;
         }
-        var files = ((string[])e.Data.GetData(DataFormats.FileDrop));
-        var filteredFiles = files.Where(f => Regex.Match(f, regex).Success);
-        if (!filteredFiles.Any())
+        var files = ((string[])e.Data.GetData(DataFormats.FileDrop)).Where(f => regex.IsMatch(f)).AsQueryable();
+        if (!files.Any())
         {
             e.Effects = DragDropEffects.None;
             e.Handled = true;

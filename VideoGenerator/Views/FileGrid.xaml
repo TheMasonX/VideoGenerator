@@ -43,11 +43,11 @@
                 <DataGridTemplateColumn SortMemberPath="Name" Width="*" IsReadOnly="True">
                     <DataGridTemplateColumn.Header>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                            <TextBlock x:Name="fileNameHeader" Text="Name" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                            <ToggleButton x:Name="fileNameFilterEnabled" HorizontalAlignment="Right" Margin="10,0,0,0" Style="{StaticResource filterToggle}"
+                            <TextBlock x:Name="fileNameHeader" Text="File Name" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <ToggleButton x:Name="fileNameFilterEnabled" HorizontalAlignment="Right" Margin="20,0,4,0" ToolTip="Enable File Name Filtering" Style="{StaticResource filterToggle}"
                                           IsChecked="{Binding DataContext.EnableFileNameFilter, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                           Visibility="{Binding DataContext.ImageFilesView.CanFilter, Converter={StaticResource boolToVis}, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
-                            <TextBox x:Name="filterTextBox" Text="{Binding DataContext.FileNameFilter, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            <TextBox x:Name="fileNameFilterText" Text="{Binding DataContext.FileNameFilter, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                      Visibility="{Binding DataContext.ImageFilesView.CanFilter, Converter={StaticResource boolToVis}, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
                         </StackPanel>
                     </DataGridTemplateColumn.Header>
@@ -76,7 +76,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <!-- == Image Size Column == -->
-                <DataGridTemplateColumn Header="Size" SortMemberPath="PixelCount" IsReadOnly="True" MinWidth="80">
+                <DataGridTemplateColumn x:Name="imageSizeHeader" Header="Image Size" SortMemberPath="PixelCount" IsReadOnly="True" MinWidth="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate d:DataType="models:ImageDataModel">
                             <TextBlock Text="{Binding Data.Size}">
@@ -90,7 +90,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <!-- == File Size Column == -->
-                <DataGridTemplateColumn Header="File Size" SortMemberPath="Size" IsReadOnly="True" MinWidth="80">
+                <DataGridTemplateColumn x:Name="fileSizeHeader" Header="File Size" SortMemberPath="Size" IsReadOnly="True" MinWidth="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate d:DataType="models:ImageDataModel">
                             <TextBlock Text="{Binding SizeFormatted}">

@@ -28,7 +28,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 {
     private const string _openFileDialogTitle = "Select Images To Convert";
     private const string _inputExtensionFilter = "Image files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png|All files (*.*)|*.*";
-    public string InputExtensionRegex => @"(\.bmp)|(\.jpg)|(\.png)";
+    public readonly Regex InputExtensionRegex = new (@"(\.bmp)|(\.jpg)|(\.png)");
 
     private const string _saveFileDialogTitle = "Save Video File";
     private const string _outputExtensionFilter = "Video File (*.mp4)|*.mp4|All files (*.*)|*.*";
@@ -45,16 +45,17 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     {
         Task.Run(() =>
         {
-            Task.Delay(5000).Wait();
+            Task.Delay(1000).Wait();
             var photos = new DirectoryInfo(@"C:\Users\TheMasonX\Pictures\");
-            var files = photos.GetFiles().Select(f => f.FullName);
+            var files = photos.GetFiles().Select(f => f.FullName).AsQueryable();
             OpenFiles(files);
         });
     }
 
     public void Dispose ()
     {
-        throw new NotImplementedException();
+        _fileGrid?.Dispose();
+        _imageEditor?.Dispose();
     }
 
 
@@ -127,7 +128,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
                 Filter = _inputExtensionFilter,
             };
             openFileDialog.ShowDialog();
-            OpenFiles(openFileDialog.FileNames);
+            OpenFiles(openFileDialog.FileNames.AsQueryable());
         });
     }
 
@@ -155,8 +156,9 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 
     #region Open
 
-    public void OpenFiles (IEnumerable<string>? files)
+    public void OpenFiles (IQueryable<string>? files)
     {
+        files = files?.Where(f => InputExtensionRegex.IsMatch(f));
         if (files is null || !files.Any()) return;
 
         int addCount = files.Count();
@@ -166,7 +168,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         {
             foreach (string file in files)
             {
-                if (file.IsNullOrEmpty() || !Regex.IsMatch(file!, InputExtensionRegex)) continue;
+                if (file.IsNullOrEmpty() || !InputExtensionRegex.IsMatch(file!)) continue;
                 if (FileGrid.OpenFile(file, true))
                     Status.Update(1);
                 else
