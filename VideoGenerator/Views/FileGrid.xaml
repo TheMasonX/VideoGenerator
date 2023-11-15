@@ -36,7 +36,7 @@
         </Grid.RowDefinitions>
 
         <!-- ========================================== File Grid ========================================== -->
-        <DataGrid x:Name="filesGrid" Grid.Row="0" ItemsSource="{Binding ImageFilesView}" SelectedItem="{Binding SelectedImageFile}" UnloadingRow="filesGrid_UnloadingRow" EnableRowVirtualization="False" EnableColumnVirtualization="False" RowHeight="30" 
+        <DataGrid x:Name="filesGrid_DataGrid" Grid.Row="0" ItemsSource="{Binding ImageFilesView}" SelectedItem="{Binding SelectedImageFile}" UnloadingRow="filesGrid_UnloadingRow" EnableRowVirtualization="False" EnableColumnVirtualization="False" RowHeight="30" 
                   AutoGenerateColumns="False" CanUserSortColumns="True" CanUserReorderColumns="True" CanUserDeleteRows="True" HeadersVisibility="Column" AlternatingRowBackground="LightGray">
             <DataGrid.Columns>
                 <!-- == Name Column == -->
