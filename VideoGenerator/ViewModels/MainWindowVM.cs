@@ -37,25 +37,18 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     //public MainWindowVM ()
     public MainWindowVM ()
     {
-        //Test();
-        OpenFiles(new string[] { @"C:\Users\TheMasonX\Pictures\uv_test.png" });
+        //OpenFiles(new string[] { @"C:\Users\TheMasonX\Pictures\uv_test.png" });
+        Test();
     }
 
     private void Test ()
     {
         Task.Run(() =>
         {
-            List<string> files = new(100);
-            for (int i = 0; i < 20; i++)
-            {
-                files.Add(@"C:\Users\TheMasonX\Pictures\uv_test.png");
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                Task.Delay(5000).Wait();
-                OpenFiles(files);
-            }
+            Task.Delay(5000).Wait();
+            var photos = new DirectoryInfo(@"C:\Users\TheMasonX\Pictures\");
+            var files = photos.GetFiles().Select(f => f.FullName);
+            OpenFiles(files);
         });
     }
 

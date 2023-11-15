@@ -12,7 +12,7 @@
         Drop="Window_Drop"
         mc:Ignorable="d"
         x:Name="mainWindow"
-        Title="Image To Video Converter" Height="450" Width="800">
+        Title="Image To Video Converter" Height="750" Width="1000">
     <Window.DataContext>
         <viewmodels:MainWindowVM/>
     </Window.DataContext>
