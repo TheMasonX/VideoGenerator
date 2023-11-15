@@ -31,3 +31,16 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    
+- task: VSTest@3
+  displayName: 'VsTest - testAssemblies'
+  inputs:
+    testAssemblyVer2: |
+     **\*test*.dll
+     **\*.Specs.dll
+     !**\*TestAdapter.dll
+     !**\obj\**
+    uiTests: true
+    runTestsInIsolation: false
+    codeCoverageEnabled: false
+    rerunFailedTests: false
