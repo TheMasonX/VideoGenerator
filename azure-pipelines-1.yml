@@ -32,7 +32,7 @@ steps:
     testSelector: 'testAssemblies'
     testAssemblyVer2: |
       **\*test*.dll
-      !**\*Specs**
+      !**Specs**
       !**\*TestAdapter.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
