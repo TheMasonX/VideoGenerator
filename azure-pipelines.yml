@@ -37,7 +37,7 @@ steps:
   inputs:
     testAssemblyVer2: |
      **\*test*.dll
-     **\*.Specs.dll
+     !**Specs**
      !**\*TestAdapter.dll
      !**\obj\**
     uiTests: true
