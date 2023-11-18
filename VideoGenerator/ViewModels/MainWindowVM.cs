@@ -1,23 +1,15 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.Win32;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
+﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using Microsoft.Win32;
+
 using VideoGenerator.Models;
 using VideoGenerator.Properties;
 using VideoGenerator.Utils.Extensions;
@@ -28,7 +20,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 {
     private const string _openFileDialogTitle = "Select Images To Convert";
     private const string _inputExtensionFilter = "Image files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png|All files (*.*)|*.*";
-    public readonly Regex InputExtensionRegex = new (@"(\.bmp)|(\.jpg)|(\.png)");
+    public readonly Regex InputExtensionRegex = new(@"(\.bmp)|(\.jpg)|(\.png)");
 
     private const string _saveFileDialogTitle = "Save Video File";
     private const string _outputExtensionFilter = "Video File (*.mp4)|*.mp4|All files (*.*)|*.*";
@@ -52,10 +44,11 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         });
     }
 
-    public void Dispose ()
+    public void Dispose()
     {
         _fileGrid?.Dispose();
         _imageEditor?.Dispose();
+        GC.SuppressFinalize(this);
     }
 
 
@@ -159,7 +152,10 @@ public partial class MainWindowVM : ObservableObject, IDisposable
     public void OpenFiles (IQueryable<string>? files)
     {
         files = files?.Where(f => InputExtensionRegex.IsMatch(f));
-        if (files is null || !files.Any()) return;
+        if (files is null || !files.Any())
+        {
+            return;
+        }
 
         int addCount = files.Count();
         Status = new LoadingStatus(FileGrid.Count, FileGrid.Count + addCount, "Item", "Items");
@@ -168,11 +164,19 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         {
             foreach (string file in files)
             {
-                if (file.IsNullOrEmpty() || !InputExtensionRegex.IsMatch(file!)) continue;
+                if (file.IsNullOrEmpty() || !InputExtensionRegex.IsMatch(file!))
+                {
+                    continue;
+                }
+
                 if (FileGrid.OpenFile(file, true))
+                {
                     Status.Update(1);
+                }
                 else
+                {
                     Status = new TextStatus() { Status = $"Load Error for {file}", BGColor = Brushes.Red };
+                }
             }
             Status.Hide();
             FileGrid.Refresh();
@@ -191,7 +195,9 @@ public partial class MainWindowVM : ObservableObject, IDisposable
         return Task.Run(() =>
         {
             if (File.Exists(OutputFilePath))
+            {
                 File.Delete(OutputFilePath);
+            }
 
             //using (StreamWriter sw = File.CreateText(OutputFilePath))
             //{
@@ -217,14 +223,22 @@ public partial class MainWindowVM : ObservableObject, IDisposable
                 Filter = _outputExtensionFilter,
             };
             if (!Settings.Default.OutputDirectory.IsNullOrEmpty())
+            {
                 fileDialog.InitialDirectory = Settings.Default.OutputDirectory;
+            }
 
             bool? result = fileDialog.ShowDialog();
-            if (!result.HasValue || !result.Value) return; //Invalid selection
+            if (!result.HasValue || !result.Value)
+            {
+                return; //Invalid selection
+            }
 
             OutputFilePath = fileDialog.FileName;
 
-            if (!OutputFilePath.IsNullOrEmpty()) Save(); //Valid FilePath
+            if (!OutputFilePath.IsNullOrEmpty())
+            {
+                Save(); //Valid FilePath
+            }
         });
     }
 

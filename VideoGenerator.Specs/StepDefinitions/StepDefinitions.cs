@@ -1,4 +1,5 @@
 using TechTalk.SpecFlow;
+
 using VideoGenerator.Specs.Drivers;
 
 namespace VideoGenerator.Specs.StepDefinitions;
@@ -14,7 +15,7 @@ public sealed class StepDefinitions
     }
 
     [Given(@"App is loaded")]
-    public void GivenAppIsLoaded ()
+    public static void GivenAppIsLoaded ()
     {
         Task.Delay(5000).Wait();
     }
@@ -67,7 +68,7 @@ public sealed class StepDefinitions
     [When(@"Move Mouse (.*), (.*) pixels")]
     public void WhenMoveMousePixels (int x, int y)
     {
-        _form.MoveMouse(x,y);
+        _form.MoveMouse(x, y);
     }
 
     [When(@"Move Mouse (.*), (.*) pixels and Click")]
@@ -84,13 +85,13 @@ public sealed class StepDefinitions
     }
 
     [When(@"Wait (\d*) Seconds")]
-    public void WhenWaitSeconds (int delaySeconds)
+    public static void WhenWaitSeconds (int delaySeconds)
     {
         Task.Delay(delaySeconds * 1000).Wait();
     }
 
     [When(@"Wait (.*) to (.*) Seconds")]
-    public void WhenWaitToSeconds (int minDelaySeconds, int maxDelaySeconds)
+    public static void WhenWaitToSeconds (int minDelaySeconds, int maxDelaySeconds)
     {
         WhenWaitSeconds(Random.Shared.Next(minDelaySeconds, maxDelaySeconds)); //TODO: Is this range inclusive?
     }

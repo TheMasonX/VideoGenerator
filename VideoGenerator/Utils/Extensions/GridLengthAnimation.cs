@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Media.Animation;
 using System.Windows;
-using System.Diagnostics;
+using System.Windows.Media.Animation;
 
 namespace VideoGenerator.Utils.Extensions;
 
@@ -98,8 +95,10 @@ internal class GridLengthAnimation : AnimationTimeline
 
         GridUnitType unitVal = (GridUnitType)GetValue(GridLengthAnimation.UnitProperty);
         IEasingFunction? easingFunctionVal = (IEasingFunction)GetValue(GridLengthAnimation.EasingFunctionProperty);
-        if(easingFunctionVal is not null)
+        if (easingFunctionVal is not null)
+        {
             percent = easingFunctionVal.Ease(percent);
+        }
 
         return new GridLength(percent * (toVal - fromVal) + fromVal, unitVal);
     }

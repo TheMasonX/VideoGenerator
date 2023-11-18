@@ -1,16 +1,9 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using Serilog;
-using Serilog.Core;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+
+using Serilog;
 
 namespace VideoGenerator.Utils.Controls;
 
@@ -31,9 +24,9 @@ public class ImageEx : Image
     [Flags]
     private enum DragState
     {
-        None        = 0b00,
-        Clicked     = 0b01,
-        Dragging    = 0b10,
+        None = 0b00,
+        Clicked = 0b01,
+        Dragging = 0b10,
     }
 
     private DragState _dragState;
@@ -42,9 +35,12 @@ public class ImageEx : Image
 
     private void OnMouseDown (object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        if (e.ChangedButton != MouseDragButton) return;
+        if (e.ChangedButton != MouseDragButton)
+        {
+            return;
+        }
 
-        if(this.CaptureMouse())
+        if (this.CaptureMouse())
         {
             _dragState = DragState.Clicked;
             _mouseClickPosition = e.GetPosition(this);
@@ -53,14 +49,20 @@ public class ImageEx : Image
 
     private void OnMouseUp (object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        if (e.ChangedButton != MouseDragButton) return;
+        if (e.ChangedButton != MouseDragButton)
+        {
+            return;
+        }
 
         ReleaseClick();
     }
 
     private void OnMouseMove (object sender, System.Windows.Input.MouseEventArgs e)
     {
-        if (!_dragState.HasFlag(DragState.Clicked)) return; //Not even clicked
+        if (!_dragState.HasFlag(DragState.Clicked))
+        {
+            return; //Not even clicked
+        }
 
         Point currentPos = e.GetPosition(this);
         Vector offset = _mouseClickPosition - currentPos;
@@ -75,7 +77,7 @@ public class ImageEx : Image
         _dragState |= DragState.Dragging;
     }
 
-    private void ReleaseClick()
+    private void ReleaseClick ()
     {
         _dragState = DragState.None;
         this.ReleaseMouseCapture();
@@ -96,9 +98,14 @@ public class ImageEx : Image
     private void ImageEx_SizeChanged (object sender, SizeChangedEventArgs e)
     {
         if (e.WidthChanged)
+        {
             ActualWidthValue = e.NewSize.Width;
+        }
+
         if (e.HeightChanged)
+        {
             ActualHeightValue = e.NewSize.Height;
+        }
 
         Log.Information("Parent is {Parent}", Parent);
     }

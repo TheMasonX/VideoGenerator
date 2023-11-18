@@ -1,33 +1,28 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+
+using Serilog;
 
 namespace VideoGenerator.Utils.Controls;
 
 public class NumericBox : TextBox
 {
-    public NumericBox() : base()
+    public NumericBox () : base()
     {
         PreviewTextInput += NumericBox_PreviewTextInput;
         //RegisterMouseEvents();
     }
 
-    private void RegisterMouseEvents()
+    private void RegisterMouseEvents ()
     {
         MouseLeftButtonDown += NumericBox_MouseLeftButtonDown;
         MouseLeftButtonUp += (a, b) => clicked = false;
         LostFocus += (a, b) => clicked = dragging = false;
         MouseMove += NumericBox_MouseMove;
     }
-    
+
     private double minDragDistance = SystemParameters.MinimumHorizontalDragDistance * SystemParameters.MinimumHorizontalDragDistance + SystemParameters.MinimumVerticalDragDistance * SystemParameters.MinimumVerticalDragDistance;
     private Point mouseClickPosition;
     private bool clicked = false;
@@ -35,7 +30,10 @@ public class NumericBox : TextBox
 
     private void NumericBox_MouseLeftButtonDown (object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        if (sender is not UIElement element) return;
+        if (sender is not UIElement element)
+        {
+            return;
+        }
 
         clicked = true;
         mouseClickPosition = e.MouseDevice.GetPosition(element);
@@ -43,12 +41,18 @@ public class NumericBox : TextBox
 
     private void NumericBox_MouseMove (object sender, System.Windows.Input.MouseEventArgs e)
     {
-        if (sender is not UIElement element) return;
+        if (sender is not UIElement element)
+        {
+            return;
+        }
 
         Point pos = e.MouseDevice.GetPosition(element);
         Vector offset = mouseClickPosition - pos;
         double offsetMagnitude = offset.Length - minDragDistance;
-        if (offsetMagnitude <= 0) return;
+        if (offsetMagnitude <= 0)
+        {
+            return;
+        }
 
         Log.Debug("{Magnitude}", offsetMagnitude);
     }

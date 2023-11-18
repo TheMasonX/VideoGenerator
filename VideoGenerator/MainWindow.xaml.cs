@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
 using VideoGenerator.ViewModels;
 
 namespace VideoGenerator;
@@ -29,7 +18,11 @@ public partial class MainWindow : Window
 
     private void Window_Drop (object sender, DragEventArgs e)
     {
-        if (DataContext is not MainWindowVM vm) return;
+        if (DataContext is not MainWindowVM vm)
+        {
+            return;
+        }
+
         var files = GetFiles(e, vm.InputExtensionRegex);
 
         vm.OpenFiles(files);
@@ -37,24 +30,30 @@ public partial class MainWindow : Window
 
     private void Window_DragEnter (object sender, DragEventArgs e)
     {
-        if (DataContext is not MainWindowVM vm) return;
+        if (DataContext is not MainWindowVM vm)
+        {
+            return;
+        }
 
         GetFiles(e, vm.InputExtensionRegex);
     }
 
     private void Window_DragOver (object sender, DragEventArgs e)
     {
-        if (DataContext is not MainWindowVM vm) return;
+        if (DataContext is not MainWindowVM vm)
+        {
+            return;
+        }
 
         GetFiles(e, vm.InputExtensionRegex);
     }
 
-    private IQueryable<string>? GetFiles (DragEventArgs e, string regex)
+    private static IQueryable<string>? GetFiles (DragEventArgs e, string regex)
     {
         return GetFiles(e, new Regex(regex));
     }
 
-    private IQueryable<string>? GetFiles (DragEventArgs e, Regex regex)
+    private static IQueryable<string>? GetFiles (DragEventArgs e, Regex regex)
     {
         if (!e.Data.GetDataPresent(DataFormats.FileDrop))
         {

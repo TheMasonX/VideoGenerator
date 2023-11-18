@@ -1,12 +1,8 @@
 ﻿using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Interactions;
+
 using SpecFlow.Actions.WindowsAppDriver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VideoGenerator.Specs.Drivers;
 
@@ -29,6 +25,6 @@ public class VideoGeneratorElements
     public AppiumWebElement FileNameFilterToggle => FilesGrid.FindElementByAccessibilityId("fileNameFilterEnabled");
     public AppiumWebElement FileNameFilterText => FilesGrid.FindElementByAccessibilityId("fileNameFilterText");
 
-    public void MoveMouse(int x, int y) => new Actions(_appDriver.Current).MoveByOffset(x, y).Perform();
-    public void Click() => new Actions(_appDriver.Current).Click().Perform();
+    public void MoveMouse (int x, int y) => new Actions(_appDriver.Current).MoveByOffset(x, y).Perform();
+    public void Click () => new Actions(_appDriver.Current).Click().Perform();
 }

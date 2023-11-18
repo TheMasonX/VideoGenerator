@@ -1,55 +1,73 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Text;
-using System.Threading.Tasks;
-using OldColor = System.Drawing.Color;
+using System.Text.RegularExpressions;
+using System.Windows.Media.Imaging;
+
+using VideoGenerator.Utils.Extensions;
+
 using NewColor = System.Windows.Media.Color;
 using NewColors = System.Windows.Media.Colors;
-using VideoGenerator.Utils.Extensions;
+using OldColor = System.Drawing.Color;
 
 namespace VideoGenerator.Tests;
 
 public static class AssertEx
 {
-    public static void AreEqual(OldColor expected, NewColor actual)
+    public static void AreEqual (ColorRecord expected, ColorRecord actual, string? message)
     {
-        Assert.AreEqual(expected.R, actual.R);
-        Assert.AreEqual(expected.G, actual.G);
-        Assert.AreEqual(expected.B, actual.B);
-        Assert.AreEqual(expected.A, actual.A);
+        if (message.IsNullOrEmpty())
+        {
+            Assert.AreEqual(expected, actual);
+        }
+        else
+        {
+            Assert.AreEqual(expected, actual, message);
+        }
     }
 
-    public static void AreEqual (NewColor expected, OldColor actual)
+    public static void AreEqual (OldColor expected, NewColor actual, string? message = null)
     {
-        Assert.AreEqual(expected.R, actual.R);
-        Assert.AreEqual(expected.G, actual.G);
-        Assert.AreEqual(expected.B, actual.B);
-        Assert.AreEqual(expected.A, actual.A);
+        AreEqual(expected.ToRecord(), actual.ToRecord(), message);
     }
 
-    public static void AreEqual (OldColor expected, OldColor actual)
+    public static void AreEqual (NewColor expected, OldColor actual, string? message = null)
     {
-        Assert.AreEqual(expected.R, actual.R);
-        Assert.AreEqual(expected.G, actual.G);
-        Assert.AreEqual(expected.B, actual.B);
-        Assert.AreEqual(expected.A, actual.A);
+        AreEqual(expected.ToRecord(), actual.ToRecord(), message);
     }
 
-    public static void AreEqual (NewColor expected, NewColor actual)
+    public static void AreEqual (OldColor expected, OldColor actual, string? message = null)
     {
-        Assert.AreEqual(expected.R, actual.R);
-        Assert.AreEqual(expected.G, actual.G);
-        Assert.AreEqual(expected.B, actual.B);
-        Assert.AreEqual(expected.A, actual.A);
+        AreEqual(expected.ToRecord(), actual.ToRecord(), message);
+    }
+
+    public static void AreEqual (NewColor expected, NewColor actual, string? message = null)
+    {
+        AreEqual(expected.ToRecord(), actual.ToRecord(), message);
+    }
+
+    public static void AreEqual (Bitmap expected, WriteableBitmap actual, bool compareTransparent = false, string? imageName = null)
+    {
+        Assert.AreEqual(expected.Width, actual.Width);
+        Assert.AreEqual(expected.Height, actual.Height);
+        for (int x = 0; x < actual.Width; x++)
+        {
+            for (int y = 0; y < actual.Height; y++)
+            {
+                var expectedPixel = expected.GetPixel(x, y).ToRecord();
+                var actualPixel = actual.GetPixel(x, y).ToRecord();
+                bool bothTransparent = expectedPixel.A == 0 && actualPixel.A == 0;
+                if (compareTransparent || !bothTransparent)
+                    AreEqual(expectedPixel, actualPixel, $"\nPixel ({x},{y}) in {imageName}");
+            }
+        }
     }
 }
 
 [TestClass]
 public class ColorUtilsTests
 {
-    public static (OldColor, NewColor)[] pairs = new (OldColor, NewColor)[]
+    private static readonly (OldColor, NewColor)[] pairs = new[]
     {
         (OldColor.Black, NewColors.Black),
         (OldColor.Red, NewColors.Red),
@@ -95,5 +113,38 @@ public class ColorUtilsTests
             var converted2 = colorPair.Item2.Convert().Convert();
             AssertEx.AreEqual(colorPair.Item2, converted2);
         }
+    }
+
+    [DataTestMethod]
+    [DataRow("./uv_test.png")]
+    //[DataRow(@"C:\Users\TheMasonX/Pictures/Melody Sword and Shield Cutout Color.png")]
+    public void ToWriteableBitmap_ComparePixels (string path)
+    {
+        TestImage(path, 0);
+    }
+
+
+    private static readonly Regex imageRegex = new(@"(\.png)|(\.bmp)|(\.jpg)");
+
+    //[TestMethod]
+    //public async Task ToWriteableBitmap_ComparePixels_UserPicturesAsync ()
+    //{
+    //    var files = Directory.GetFiles($"{Environment.GetEnvironmentVariable("UserProfile")}/Pictures/").Where(f => imageRegex.IsMatch(f)).ToArray();
+    //    for (int i = 0; i < files.Length; i++)
+    //    {
+    //        string filePath = files[i];
+    //        Trace.WriteLine($"#{i} Starting: {filePath}");
+    //        TestImage(filePath, i);
+    //        Trace.WriteLine($"#{i} Finished: {filePath}");
+    //        await Task.Delay(1);
+    //    }
+    //}
+
+    public static void TestImage (string filePath, int index)
+    {
+        using Image bitmap = Image.FromFile(filePath);
+        WriteableBitmap? writeableBitmap = bitmap.ToWriteableBitmap();
+        Assert.IsNotNull(writeableBitmap);
+        AssertEx.AreEqual((Bitmap)bitmap, writeableBitmap, false, $"#{index}: {filePath}");
     }
 }

@@ -1,16 +1,14 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.Mvvm.Input;
-using Serilog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Threading;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using Serilog;
+
 using VideoGenerator.Models;
 using VideoGenerator.Utils.Extensions;
 
@@ -30,7 +28,10 @@ public partial class FileGridVM : ObservableObject, IDisposable
         if (_imageFiles is not null)
         {
             foreach (var file in _imageFiles)
+            {
                 file.Dispose();
+            }
+
             _imageFiles.Clear();
         }
         _imageFilesView = null;
@@ -69,7 +70,9 @@ public partial class FileGridVM : ObservableObject, IDisposable
         set
         {
             if (SetProperty(ref _fileNameFilter, value) && EnableFileNameFilter && ImageFilesView.CanFilter)
+            {
                 Refresh();
+            }
         }
     }
 
@@ -80,7 +83,9 @@ public partial class FileGridVM : ObservableObject, IDisposable
         set
         {
             if (SetProperty(ref _enableFileNameFilter, value))
+            {
                 Refresh();
+            }
         }
     }
 
@@ -112,7 +117,10 @@ public partial class FileGridVM : ObservableObject, IDisposable
 
     public bool OpenFile (string? file, bool update = true)
     {
-        if (file.IsNullOrEmpty()) return false;
+        if (file.IsNullOrEmpty())
+        {
+            return false;
+        }
 
         var sw = Stopwatch.StartNew();
         ImageData data = new(file!);
@@ -134,7 +142,7 @@ public partial class FileGridVM : ObservableObject, IDisposable
         OnPropertyChanged(nameof(VisibleCount));
     }
 
-    public void RefreshCounts()
+    public void RefreshCounts ()
     {
         OnPropertyChanged(nameof(Count));
         OnPropertyChanged(nameof(VisibleCount));
@@ -144,9 +152,12 @@ public partial class FileGridVM : ObservableObject, IDisposable
 
     #region Private Methods
 
-    private ListCollectionView CreateFileListView<T>(List<T> files)
+    private ListCollectionView CreateFileListView<T> (List<T> files)
     {
-        if (Application.Current is null) return new ListCollectionView(files); //In case this is being run outside the application like during benchmarking
+        if (Application.Current is null)
+        {
+            return new ListCollectionView(files); //In case this is being run outside the application like during benchmarking
+        }
 
         return Application.Current.Dispatcher.Invoke(() =>
         {
@@ -158,8 +169,15 @@ public partial class FileGridVM : ObservableObject, IDisposable
 
     private bool FilterImageFileNames (object file)
     {
-        if (!EnableFileNameFilter || FileNameFilter.IsNullOrEmpty()) return true;
-        if (file is not ImageData imageData) return false;
+        if (!EnableFileNameFilter || FileNameFilter.IsNullOrEmpty())
+        {
+            return true;
+        }
+
+        if (file is not ImageData imageData)
+        {
+            return false;
+        }
 
         return imageData.Name.Contains(FileNameFilter, StringComparison.CurrentCultureIgnoreCase);
     }

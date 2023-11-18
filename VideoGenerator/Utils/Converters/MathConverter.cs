@@ -31,7 +31,7 @@ public class MathConverter :
 #endif
     IValueConverter
 {
-    Dictionary<string, IExpression> _storedExpressions = new Dictionary<string, IExpression>();
+    Dictionary<string, IExpression> _storedExpressions = new();
 
     public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -48,11 +48,31 @@ public class MathConverter :
         try
         {
             decimal result = Parse(parameter.ToString()).Eval(values);
-            if (targetType == typeof(decimal)) return result;
-            if (targetType == typeof(string)) return result.ToString();
-            if (targetType == typeof(int)) return (int)result;
-            if (targetType == typeof(double)) return (double)result;
-            if (targetType == typeof(long)) return (long)result;
+            if (targetType == typeof(decimal))
+            {
+                return result;
+            }
+
+            if (targetType == typeof(string))
+            {
+                return result.ToString();
+            }
+
+            if (targetType == typeof(int))
+            {
+                return (int)result;
+            }
+
+            if (targetType == typeof(double))
+            {
+                return (double)result;
+            }
+
+            if (targetType == typeof(long))
+            {
+                return (long)result;
+            }
+
             throw new ArgumentException(String.Format("Unsupported target type {0}", targetType.FullName));
         }
         catch (Exception ex)
@@ -213,7 +233,10 @@ public class MathConverter :
 
             while (true)
             {
-                if (pos >= text.Length) return left;
+                if (pos >= text.Length)
+                {
+                    return left;
+                }
 
                 var c = text[pos];
 
@@ -236,7 +259,10 @@ public class MathConverter :
 
             while (true)
             {
-                if (pos >= text.Length) return left;
+                if (pos >= text.Length)
+                {
+                    return left;
+                }
 
                 var c = text[pos];
 
@@ -256,7 +282,10 @@ public class MathConverter :
         private IExpression ParseFactor ()
         {
             SkipWhiteSpace();
-            if (pos >= text.Length) throw new ArgumentException("Unexpected end of text");
+            if (pos >= text.Length)
+            {
+                throw new ArgumentException("Unexpected end of text");
+            }
 
             var c = text[pos];
 
@@ -272,10 +301,25 @@ public class MathConverter :
                 return new Negate(ParseFactor());
             }
 
-            if (c == 'x' || c == 'a') return CreateVariable(0);
-            if (c == 'y' || c == 'b') return CreateVariable(1);
-            if (c == 'z' || c == 'c') return CreateVariable(2);
-            if (c == 't' || c == 'd') return CreateVariable(3);
+            if (c == 'x' || c == 'a')
+            {
+                return CreateVariable(0);
+            }
+
+            if (c == 'y' || c == 'b')
+            {
+                return CreateVariable(1);
+            }
+
+            if (c == 'z' || c == 'c')
+            {
+                return CreateVariable(2);
+            }
+
+            if (c == 't' || c == 'd')
+            {
+                return CreateVariable(3);
+            }
 
             if (c == '(')
             {
@@ -322,7 +366,10 @@ public class MathConverter :
 
         private void SkipWhiteSpace ()
         {
-            while (pos < text.Length && Char.IsWhiteSpace((text[pos]))) ++pos;
+            while (pos < text.Length && Char.IsWhiteSpace((text[pos])))
+            {
+                ++pos;
+            }
         }
 
         private void Require (char c)

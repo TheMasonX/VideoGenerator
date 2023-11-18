@@ -1,16 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Serilog;
-using Serilog.Core;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+
+using Serilog;
+
 using VideoGenerator.Utils.Extensions;
 
 namespace VideoGenerator.Models;
@@ -31,7 +27,10 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
 {
     public FileDataModel (string filePath)
     {
-        if (filePath.IsNullOrEmpty()) return;
+        if (filePath.IsNullOrEmpty())
+        {
+            return;
+        }
 
         //_data = Image.FromFile(filePath);
 
@@ -99,13 +98,19 @@ public abstract class FileDataModel<T> : ObservableObject, IFileData<T>, IDispos
         const double gb = 1024 * 1024 * 1024;
 
         if (Size < kb)
+        {
             return $"{Size:N0}B";
+        }
 
         if (Size < mb)
-            return $"{(Size/kb):N1}KB";
+        {
+            return $"{(Size / kb):N1}KB";
+        }
 
         if (Size < gb)
+        {
             return $"{(Size / mb):N1}MB";
+        }
 
         return $"{(Size / gb):N1}GB";
     }
@@ -136,14 +141,20 @@ public class ImageData : FileDataModel<Image>
 
     public override Image? GetData ()
     {
-        if(_data is null)
+        if (_data is null)
+        {
             LoadData();
+        }
+
         return _data;
     }
 
     public override bool SaveData (string outputPath)
     {
-        if (_data is null || outputPath.IsNullOrEmpty()) return false;
+        if (_data is null || outputPath.IsNullOrEmpty())
+        {
+            return false;
+        }
 
         try
         {
@@ -164,7 +175,10 @@ public class ImageData : FileDataModel<Image>
 
     protected override void LoadData ()
     {
-        if (FilePath.IsNullOrEmpty()) return;
+        if (FilePath.IsNullOrEmpty())
+        {
+            return;
+        }
 
         try
         {

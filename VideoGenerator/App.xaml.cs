@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Windows;
+
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
 
 namespace VideoGenerator;
@@ -21,7 +13,7 @@ public partial class App : Application
     private string _logFile = $"./VideoGenerator.Log";
     private LogEventLevel _traceLogLevel = LogEventLevel.Verbose;
 
-    public App () : base ()
+    public App () : base()
     {
         Log.Logger = new LoggerConfiguration()
             .Enrich.WithMachineName()

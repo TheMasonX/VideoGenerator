@@ -1,19 +1,15 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.Mvvm.Input;
-using Serilog;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using Serilog;
+
 using VideoGenerator.Models;
 using VideoGenerator.Utils.Extensions;
 
@@ -41,7 +37,9 @@ public class ImageEditorVM : ObservableObject, IDisposable
         set
         {
             if (SetProperty(ref _image, value))
+            {
                 CreateNewBitmap(value?.GetData());
+            }
         }
     }
 
@@ -52,7 +50,9 @@ public class ImageEditorVM : ObservableObject, IDisposable
         set
         {
             if (SetProperty(ref _bitmap, value) && value is not null)
+            {
                 ResetControls();
+            }
         }
     }
 
@@ -110,13 +110,17 @@ public class ImageEditorVM : ObservableObject, IDisposable
     private RelayCommand<RoutedEventArgs>? _mouseWheelCommand;
     public ICommand MouseWheelCommand => _mouseWheelCommand ??= new RelayCommand<RoutedEventArgs>(OnMouseWheel);
 
-    public void OnMouseWheel(RoutedEventArgs? e)
+    public void OnMouseWheel (RoutedEventArgs? e)
     {
-        if (e is not MouseWheelEventArgs args) return;
+        if (e is not MouseWheelEventArgs args)
+        {
+            return;
+        }
+
         var delta = args.Delta;
         var oldZoom = Zoom;
         Zoom = Math.Clamp(Zoom + delta * .001, MinZoom, MaxZoom);
-        
+
         Log.Debug("Delta {Delta}, Zoom went from {OldZoom} to {NewZoom}", delta, oldZoom, Zoom);
     }
 
@@ -124,17 +128,23 @@ public class ImageEditorVM : ObservableObject, IDisposable
 
     #region Public Methods
 
-    public bool OpenImage(ImageData? image)
+    public bool OpenImage (ImageData? image)
     {
-        if (image is null) return false;
+        if (image is null)
+        {
+            return false;
+        }
 
         Image = image;
         return true;
     }
 
-    public void ResetControls()
+    public void ResetControls ()
     {
-        if (Bitmap is null) return;
+        if (Bitmap is null)
+        {
+            return;
+        }
 
         CenterX = CenterY = .5;
         Zoom = 1;
@@ -146,7 +156,10 @@ public class ImageEditorVM : ObservableObject, IDisposable
 
     private void CreateNewBitmap (Image? image)
     {
-        if (image is null || image.Width <= 0 || image.Height <= 0) return;
+        if (image is null || image.Width <= 0 || image.Height <= 0)
+        {
+            return;
+        }
 
         Bitmap = image.ToWriteableBitmap();
     }

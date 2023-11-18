@@ -1,10 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Media;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace VideoGenerator.Models
 {
@@ -172,8 +169,9 @@ namespace VideoGenerator.Models
                     BGColor = Brushes.Green;
                 }
                 else
+                {
                     Status = $"{ProgressPercent:P1} Complete : Loaded {_currentCount - _startCount}/{loadingCount} {(_currentCount > 1 ? _itemLabelPlural : _itemLabel)}";
-
+                }
             }
 
             TextColor = Brushes.Black;
