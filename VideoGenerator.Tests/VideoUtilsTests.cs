@@ -1,4 +1,4 @@
-#define USE_LOCAL_FILES
+//#define USE_LOCAL_FILES
 
 using System.Drawing;
 using System.Text.RegularExpressions;
