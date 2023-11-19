@@ -18,14 +18,15 @@ public partial class VideoUtilsTests
     {
         //string folder = $"{Environment.GetEnvironmentVariable("UserProfile")}/Pictures";
         //string[] files = Directory.GetFiles(folder).Where(f => imageRegex.IsMatch(f)).ToArray();
-        var files = Enumerable.Repeat(".\uv_test.png", 50).ToArray();
+        var folder = @".\";
+        var files = Enumerable.Repeat(@".\uv_test.png", 50).ToArray();
         List<Image> images = new(files.Length);
         foreach (string file in files)
         {
             images.Add(Image.FromFile(file));
         }
 
-        VideoUtils.CreateVideo(images, $"{folder}/Video.mp4", TimeSpan.FromSeconds(20), new OpenCvSharp.Size(1920, 1080), VideoUtils.EdgeFilter);
+        VideoUtils.CreateVideo(images, $@"{folder}\Video.mp4", TimeSpan.FromSeconds(20), new OpenCvSharp.Size(1920, 1080), VideoUtils.EdgeFilter);
     }
 
     [TestMethod]
@@ -33,13 +34,14 @@ public partial class VideoUtilsTests
     {
         //string folder = $"{Environment.GetEnvironmentVariable("UserProfile")}/Pictures";
         //string[] files = Directory.GetFiles(folder).Where(f => imageRegex.IsMatch(f)).ToArray();
-        var files = Enumerable.Repeat(".\uv_test.png", 50).ToArray();
+        var folder = @".\";
+        var files = Enumerable.Repeat(@".\uv_test.png", 50).ToArray();
         List<Image> images = new(files.Length);
         foreach (string file in files)
         {
             images.Add(Image.FromFile(file));
         }
 
-        VideoUtils.CreateVideo(images, $"{folder}/Video.mp4", TimeSpan.FromSeconds(20), new OpenCvSharp.Size(1920, 1080), VideoUtils.EdgeFilter);
+        VideoUtils.CreateVideo(images, $@"{folder}\Video_Edge.mp4", TimeSpan.FromSeconds(20), new OpenCvSharp.Size(1920, 1080), VideoUtils.EdgeFilter);
     }
 }
