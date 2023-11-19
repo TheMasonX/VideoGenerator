@@ -124,12 +124,10 @@ public class ColorUtilsTests
     }
 
 
-    private static readonly Regex imageRegex = new(@"(\.png)|(\.bmp)|(\.jpg)");
-
     //[TestMethod]
     //public async Task ToWriteableBitmap_ComparePixels_UserPicturesAsync ()
     //{
-    //    var files = Directory.GetFiles($"{Environment.GetEnvironmentVariable("UserProfile")}/Pictures/").Where(f => imageRegex.IsMatch(f)).ToArray();
+    //    var files = Directory.GetFiles($"{Environment.GetEnvironmentVariable("UserProfile")}/Pictures/").Where(f => RegexEx.ImageRegex.IsMatch(f)).ToArray();
     //    for (int i = 0; i < files.Length; i++)
     //    {
     //        string filePath = files[i];

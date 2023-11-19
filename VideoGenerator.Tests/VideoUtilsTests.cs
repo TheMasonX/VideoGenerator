@@ -17,7 +17,8 @@ public partial class VideoUtilsTests
     private static (string folder, string[] files) GetFolderAndFiles()
     {
 #if USE_LOCAL_FILES
-        string folder = $"{Environment.GetEnvironmentVariable("UserProfile")}/Pictures";
+
+        string folder = @$"{Environment.GetEnvironmentVariable("UserProfile")}\Pictures\3D Scans\Owl Scans\Scan 3";
         string[] files = Directory.GetFiles(folder).Where(f => RegexEx.ImageFile.IsMatch(f)).ToArray();
         return (folder, files);
 #else
@@ -27,23 +28,18 @@ public partial class VideoUtilsTests
 #endif
     }
 
-    [TestMethod]
-    public void CreateVideo ()
+    [DataTestMethod]
+    [DataRow(null)]
+    [DataRow(VideoFilter.Canny)]
+    [DataRow(VideoFilter.Contours)]
+    public void CreateVideo (VideoFilter filter)
     {
         var folderAndFiles = GetFolderAndFiles();
         string folder = folderAndFiles.folder;
         string[] files = folderAndFiles.files;
-        Image[] images = files.Select(f => Image.FromFile(f)).ToArray();
-        VideoUtils.CreateVideo(images, $@"{folder}\Video.mp4", TimeSpan.FromSeconds(20), new OpenCvSharp.Size(1920, 1080), VideoUtils.EdgeFilter);
-    }
-
-    [TestMethod]
-    public void CreateVideo_EdgeFilter ()
-    {
-        var folderAndFiles = GetFolderAndFiles();
-        string folder = folderAndFiles.folder;
-        string[] files = folderAndFiles.files;
-        Image[] images = files.Select(f => Image.FromFile(f)).ToArray();
-        VideoUtils.CreateVideo(images, $@"{folder}\Video_Edge.mp4", TimeSpan.FromSeconds(20), new OpenCvSharp.Size(1920, 1080), VideoUtils.EdgeFilter);
+        
+        var images = files.Select(f => Image.FromFile(f)).AsQueryable();
+        var filterMethod = filter.GetFilterMethod();
+        VideoUtils.CreateVideo(images, $@"{Environment.CurrentDirectory}\Video{(filterMethod is null ? "" : $"_{filter}")}.mp4", TimeSpan.FromSeconds(40), Resolution.VGA.ToSize(), filterMethod);
     }
 }

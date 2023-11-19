@@ -15,9 +15,27 @@ using Size = OpenCvSharp.Size;
 
 namespace VideoGenerator.Utils.Video;
 
+[Flags]
+public enum VideoFilter
+{
+    None            = 0x00,
+    Canny           = 0x01,
+    Contours        = 0x02,
+    Other           = 0x04,
+}
+
+public enum Resolution
+{
+    None = 0,
+    VGA = 1,
+    _720 = 2,
+    _1080 = 3,
+    _1440 = 4,
+}
+
 public static class VideoUtils
 {
-
+    #region Blend
 
     public static void Blend (this Mat srcA, Mat srcB, double blend, Mat dst)
     {
@@ -48,11 +66,14 @@ public static class VideoUtils
         return;
     }
 
-    public static void EdgeFilter(this Mat src, Mat dst)
+    #endregion Blend
+
+    #region Filters
+
+    public static void CannyFilter (this Mat src, Mat dst)
     {
         using Mat gray = new();
         using Mat canny = new();
-        using Mat laplacian = new();
 
         double srcBlend = 0.8;
         double edgeBlend = 1.2;
@@ -62,20 +83,49 @@ public static class VideoUtils
         Blend(src, srcBlend, canny, edgeBlend, dst);
     }
 
-    public static bool CreateVideo(IEnumerable<Image>? images, string path, TimeSpan duration, Size size, Action<Mat, Mat>? filter = null)
+    public static void ContoursFilter (this Mat src, Mat dst)
     {
-        if (path.IsNullOrEmpty() || images is null || !images.Any()) return false;
+        src.CopyTo(dst);
+        using Mat gray = new();
+        using Mat canny = new();
+        Cv2.CvtColor(src, gray, ColorConversionCodes.BGR2GRAY);
+        Cv2.Canny(gray, canny, 100, 180);
+        var contours = canny.FindContoursAsMat(RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
+        Cv2.DrawContours(dst, contours, 0, Scalar.Red, 30, LineTypes.AntiAlias);
+    }
+
+    public static Action<OpenCvSharp.Mat, OpenCvSharp.Mat>? GetFilterMethod (this VideoFilter filter)
+    {
+        return filter switch
+        {
+            VideoFilter.None => null,
+            VideoFilter.Canny => VideoUtils.CannyFilter,
+            VideoFilter.Contours => VideoUtils.ContoursFilter,
+            _ => null,
+        };
+    }
+
+    #endregion Filters
+
+    #region CreateVideo
+
+    public static bool CreateVideo (IEnumerable<Image>? images, string outputPath, TimeSpan duration, Size ouputResolution, Action<Mat, Mat>? filter = null)
+    {
+        return CreateVideo(images, outputPath, (images?.Count() ?? 0) / duration.TotalSeconds, ouputResolution, filter);
+    }
+
+    public static bool CreateVideo(IEnumerable<Image>? images, string outputPath, double fps, Size ouputResolution, Action<Mat, Mat>? filter = null)
+    {
+        if (outputPath.IsNullOrEmpty() || images is null || !images.Any()) return false;
 
         var interpolationFlags = InterpolationFlags.Cubic;
-        Trace.WriteLine($"CreateVideo Starting to save {images.Count()} images to {path}");
-        double fps = images.Count() / duration.TotalSeconds;
-        int frameNumber = 0;
-        using VideoWriter writer = new (path, FourCC.H264, fps, size);
+        //Trace.WriteLine($"CreateVideo Starting to save {images.Count()} images to {outputPath}");
+
+        var sw = Stopwatch.StartNew();
+        using VideoWriter writer = new (outputPath, FourCC.H264, fps, ouputResolution);
         foreach(Image image in images)
         {
             if (image is not Bitmap bitmap) continue;
-            frameNumber++;
-            //Trace.WriteLine($"Converting #{frameNumber}");
             using Mat src = new (new Size(bitmap.Width, bitmap.Height), MatType.CV_8UC3);
             bitmap.ToMat(src);
             if (src.Empty()) continue;
@@ -85,16 +135,30 @@ public static class VideoUtils
             {
                 using Mat filtered = new();
                 filter(src, filtered);
-                Cv2.Resize(filtered, dst, size, 0, 0, interpolationFlags);
+                Cv2.Resize(filtered, dst, ouputResolution, 0, 0, interpolationFlags);
             }
             else
-                Cv2.Resize(src, dst, size, 0, 0, interpolationFlags);
+                Cv2.Resize(src, dst, ouputResolution, 0, 0, interpolationFlags);
 
             writer.Write(dst);
-            //Trace.WriteLine($"Wrote #{frameNumber}");
         }
-        Trace.WriteLine($"CreateVideo finished saving!");
-        ////InputArray inputArray = InputArray.Create<>(images);
+        sw.Stop();
+        Trace.WriteLine($"CreateVideo finished saving {images.Count()} in {sw.ElapsedMilliseconds}ms!");
         return true;
+    }
+
+    #endregion CreateVideo
+
+    public static Size ToSize (this Resolution resolution)
+    {
+        return resolution switch
+        {
+            Resolution.None => new(),
+            Resolution.VGA => new(620, 480),
+            Resolution._720 => new(1280, 720),
+            Resolution._1080 => new(1920, 1080),
+            Resolution._1440 => new(2540, 1440),
+            _ => new(),
+        };
     }
 }
