@@ -23,7 +23,7 @@ public class NumericBox : TextBox
         MouseMove += NumericBox_MouseMove;
     }
 
-    private double minDragDistance = SystemParameters.MinimumHorizontalDragDistance * SystemParameters.MinimumHorizontalDragDistance + SystemParameters.MinimumVerticalDragDistance * SystemParameters.MinimumVerticalDragDistance;
+    private readonly double minDragDistance = SystemParameters.MinimumHorizontalDragDistance * SystemParameters.MinimumHorizontalDragDistance + SystemParameters.MinimumVerticalDragDistance * SystemParameters.MinimumVerticalDragDistance;
     private Point mouseClickPosition;
     private bool clicked = false;
     private bool dragging = false;
