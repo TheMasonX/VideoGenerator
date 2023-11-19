@@ -11,27 +11,27 @@ namespace VideoGenerator.Benchmarks;
 //[SimpleJob(runtimeMoniker: RuntimeMoniker.Net60)]
 //[SimpleJob(runtimeMoniker: RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
-[TestClass]
+//[TestClass]
 public class Benchmarks
 {
     Image? bitmapImage;
 
     [GlobalSetup]
-    [TestInitialize]
+    //[TestInitialize]
     public void Setup ()
     {
-        bitmapImage = Image.FromFile(".\\uv_test.png");
+        bitmapImage = Image.FromFile(@"./uv_test.png");
     }
 
     [GlobalCleanup]
-    [TestCleanup]
+    //[TestCleanup]
     public void Cleanup ()
     {
 
     }
 
     [Benchmark]
-    [TestMethod]
+    //[TestMethod]
     public void GetWriteableBitmap ()
     {
         var bitmap = bitmapImage!.ToWriteableBitmap();
