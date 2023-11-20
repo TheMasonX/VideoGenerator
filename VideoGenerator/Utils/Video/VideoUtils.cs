@@ -23,12 +23,17 @@ namespace VideoGenerator.Utils.Video;
 [Flags]
 public enum VideoFilter
 {
-    None            = 0x00,
-    Canny           = 0x01,
-    Laplacian       = 0x02,
-    Contours        = 0x04,
-    HighPass         = 0x08,
-    Other           = 0x10,
+    None            = 0x000,
+    Canny           = 0x001,
+    Laplacian       = 0x002,
+    Contours        = 0x004,
+    HighPass        = 0x008,
+    RemoveBG        = 0x010,
+    Other1          = 0x020,
+    Other2          = 0x040,
+    Other3          = 0x080,
+    Other4          = 0x100,
+    Other5          = 0x200,
 }
 
 public enum Resolution
@@ -104,6 +109,23 @@ public static class VideoUtils
 
     #region Masks
 
+    public static void RemoveMasks (this Mat src, Mat dst, IEnumerable<ImageFilter> masks)
+    {
+        using Mat bgMask = new();
+        CombineMasksAndNegate(src, bgMask, masks);
+        if(src.Channels() > bgMask.Channels())
+        {
+            Cv2.BitwiseAnd(src, bgMask.CvtColor(ColorSpace.GRAY2BGR), dst);
+            return;
+        }
+        else if (src.Channels() < bgMask.Channels())
+        {
+            Cv2.BitwiseAnd(src.CvtColor(ColorSpace.GRAY2BGR), bgMask, dst);
+            return;
+        }
+        Cv2.BitwiseAnd(src, bgMask, dst);
+    }
+
     public static void CombineMasksAndNegate (this Mat src, Mat dst, IEnumerable<ImageFilter> masks)
     {
         //PingPong Buffer
@@ -152,19 +174,20 @@ public static class VideoUtils
 
     public static void GreenBGMask (this Mat src, Mat dst)
     {
-        Color minColor = Color.FromArgb(0, 80, 50);
-        Color maxColor = Color.FromArgb(60, 255, 125);
-        MaskColors(src, dst, minColor, maxColor);
+        MaskColors(src, dst, OldColor.FromArgb(0, 80, 50), OldColor.FromArgb(60, 255, 125));
     }
 
     public static void WhiteBGMask (this Mat src, Mat dst)
     {
-        Color minColor = Color.FromArgb(60, 100, 100);
-        Color maxColor = Color.FromArgb(255, 255, 255);
-        MaskColors(src, dst, minColor, maxColor);
+        MaskColors(src, dst, OldColor.FromArgb(60, 100, 100), OldColor.FromArgb(255, 255, 255));
     }
 
-    public static void MaskColors (this Mat src, Mat dst, Color minColor, Color maxColor)
+    public static void EdgeBGMask (this Mat src, Mat dst)
+    {
+        MaskColors(src, dst, OldColor.FromArgb(24, 163, 106), OldColor.FromArgb(177, 202, 180));
+    }
+
+    public static void MaskColors (this Mat src, Mat dst, OldColor minColor, OldColor maxColor)
     {
         Cv2.InRange(src, minColor.ToScalar(), maxColor.ToScalar(), dst);
     }
@@ -202,20 +225,18 @@ public static class VideoUtils
 
     public static void RemoveBGFilter (this Mat src, Mat dst)
     {
-        using Mat bgMask = new();
-        ImageFilter[] maskFilters = [GreenBGMask, WhiteBGMask];
-        CombineMasksAndNegate(src, bgMask, maskFilters);
-        Cv2.BitwiseAnd(src, bgMask.CvtColor(ColorSpace.GRAY2BGR), dst);
+        ImageFilter[] masks = [GreenBGMask, WhiteBGMask, EdgeBGMask];
+        RemoveMasks(src, dst, masks);
     }
 
     public static void ContoursV2Filter (this Mat src, Mat dst)
     {
         src.CopyTo(dst);
         using Mat bgFiltered = new();
-        ImageFilter[] maskFilters = [GreenBGMask, WhiteBGMask];
+        ImageFilter[] maskFilters = [GreenBGMask, WhiteBGMask, EdgeBGMask];
         CombineMasksAndNegate(src, bgFiltered, maskFilters);
 
-        var contours = bgFiltered.FindContoursAsMat(RetrievalModes.CComp, ContourApproximationModes.ApproxTC89L1);
+        var contours = bgFiltered.FindContoursAsArray(RetrievalModes.External, ContourApproximationModes.ApproxSimple);
         for (int i = 0; i < contours.Length; i++)
         {
             Cv2.DrawContours(dst, contours, i, Scalar.Blue, 35, LineTypes.Link8);
@@ -280,7 +301,7 @@ public static class VideoUtils
             VideoFilter.Laplacian => LaplacianFilter,
             VideoFilter.Contours => ContoursV2Filter,
             VideoFilter.HighPass => HighPassFilter,
-            VideoFilter.Other => RemoveBGFilter,
+            VideoFilter.RemoveBG => RemoveBGFilter,
             _ => null,
         };
     }

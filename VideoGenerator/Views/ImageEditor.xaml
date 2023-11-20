@@ -20,8 +20,8 @@
     
     <!-- ========================================== Main Dock Panel ========================================== -->
     <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <ToolBarTray DockPanel.Dock="Left" Width="80">
-            <ToolBar Header="Tools"/>
+        <ToolBarTray DockPanel.Dock="Left" Width="280">
+            <ToolBar Header="Tools" ItemsSource="{Binding ImageToolViews}"/>
         </ToolBarTray>
         
         <!-- ========================================== Main Grid ========================================== -->
@@ -34,7 +34,7 @@
 
             <!-- ========================================== Image ========================================== -->
             <Grid Grid.Row="1" Grid.RowSpan="2" Background="Gray" ClipToBounds="True" >
-                <controls:ImageEx x:Name="imagePreview" Source="{Binding Bitmap, FallbackValue='C:\\Users\\TheMasonX\\Pictures\\uv_test.png'}"
+                <controls:ImageEx x:Name="imagePreview" Source="{Binding Bitmap, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue='C:\\Users\\TheMasonX\\Pictures\\uv_test.png'}"
                   ActualWidthValue="{Binding Path=DataContext.ActualWidth, Mode=OneWayToSource, RelativeSource={RelativeSource AncestorType=UserControl}}"
                   ActualHeightValue="{Binding Path=DataContext.ActualHeight, Mode=OneWayToSource, RelativeSource={RelativeSource AncestorType=UserControl}}">
                     <!--<i:Interaction.Behaviors>
@@ -66,8 +66,10 @@
             <!-- ========================================== Footer ========================================== -->
             <StackPanel x:Name="footerPanel" Grid.Row="2" Orientation="Horizontal"  HorizontalAlignment="Right">
                 <Label Content="Center X:"/>
+                <!--TODO: Move The String Formatting Into the Numeric Box-->
                 <controls:NumericBox Text="{Binding CenterX, StringFormat={}{0:N2}}" KeyTipService.KeyTip="X" KeyTipService.KeyTipAccessed="NumericBox_KeyTipAccessed" IsFloat="True"/>
                 <Label Content="Center Y:"/>
+                <!--TODO: Move The String Formatting Into the Numeric Box-->
                 <controls:NumericBox Text="{Binding CenterY, StringFormat={}{0:N2}}" KeyTipService.KeyTip="Y" KeyTipService.KeyTipAccessed="NumericBox_KeyTipAccessed" IsFloat="True"/>
                 <Slider Minimum="{Binding MinZoom, FallbackValue=.01}" Maximum="{Binding MaxZoom, FallbackValue=5}" Value="{Binding Zoom}" Width="150" VerticalAlignment="Center">
                     <Slider.Effect>

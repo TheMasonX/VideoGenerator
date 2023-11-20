@@ -10,6 +10,5 @@ namespace VideoGenerator.Utils.Extensions;
 public static partial class RegexEx
 {
     [GeneratedRegex(@"(\.png)|(\.bmp)|(\.jpg)")]
-    private static partial Regex GetImageFileRegex ();
-    public static readonly Regex ImageFile = GetImageFileRegex();
+    public static partial Regex GetImageFileRegex();
 }

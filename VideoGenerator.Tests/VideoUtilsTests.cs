@@ -20,7 +20,7 @@ public partial class VideoUtilsTests
 #if USE_LOCAL_FILES
 
         string folder = @$"{Environment.GetEnvironmentVariable("UserProfile")}\Pictures\3D Scans\Owl Scans\Scan 3";
-        string[] files = Directory.GetFiles(folder).Where(f => RegexEx.ImageFile.IsMatch(f)).ToArray();
+        string[] files = Directory.GetFiles(folder).Where(f => RegexEx.GetImageFileRegex().IsMatch(f)).ToArray();
         return (folder, files);
 #else
         string folder = @".\";
@@ -35,19 +35,25 @@ public partial class VideoUtilsTests
     [DataRow(VideoFilter.Laplacian)]
     [DataRow(VideoFilter.Contours)]
     [DataRow(VideoFilter.HighPass)]
-    [DataRow(VideoFilter.Other)]
+    [DataRow(VideoFilter.RemoveBG)]
     public void CreateVideo (VideoFilter filter)
     {
+        var duration = TimeSpan.FromSeconds(8);
+        var size = Resolution.VGA.ToSize();
+        int frameCount = 15;
+        var filterMethod = filter.GetFilterMethod();
+
         var folderAndFiles = GetFolderAndFiles();
         string folder = folderAndFiles.folder;
         string[] files = folderAndFiles.files;
+        string outputFileName = $@"{Environment.CurrentDirectory}\Video{(filterMethod is null ? "" : $"_{filter}")}.mp4";
 
         var sw = Stopwatch.StartNew();
         //var images = files.Select(f => Image.FromFile(f)).ToArray();
-        var images = files.AsParallel().Select(f => Image.FromFile(f)).Take(10).ToArray();
+        var images = files.AsParallel().Select(f => Image.FromFile(f)).Take(frameCount).ToArray();
         sw.Stop();
         Trace.WriteLine($"Creating image array took {sw}");
-        var filterMethod = filter.GetFilterMethod();
-        VideoUtils.CreateVideo(images, $@"{Environment.CurrentDirectory}\Video{(filterMethod is null ? "" : $"_{filter}")}.mp4", TimeSpan.FromSeconds(10), Resolution.VGA.ToSize(), filterMethod);
+        VideoUtils.CreateVideo(images, outputFileName, duration, size, filterMethod);
+        Trace.WriteLine(outputFileName);
     }
 }

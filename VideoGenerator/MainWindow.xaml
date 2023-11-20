@@ -71,11 +71,11 @@
         
         <!-- === Context Menu === -->
         <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}" x:Key="FilterContextMenu">
-            <MenuItem Command="{Binding ToggleFilenameFilterCommand}">
+            <MenuItem Command="{Binding ToggleFilenameFilterCommand}" Style="{StaticResource menuItem}">
                 <MenuItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="_Filter:"/>
-                        <TextBox Text="{Binding FileNameFilter, UpdateSourceTrigger=PropertyChanged}" MinWidth="80"/>
+                        <TextBox Text="{Binding FileNameFilter, UpdateSourceTrigger=PropertyChanged}" MinWidth="80" Style="{StaticResource textBox}"/>
                     </StackPanel>
                 </MenuItem.Header>
             </MenuItem>
@@ -91,15 +91,15 @@
         </Grid.RowDefinitions>
 
         <!-- ============== Menu Bar ============== -->
-        <Menu IsMainMenu="True" Grid.Row="0">
-            <MenuItem x:Name="mainMenu_File" Header="_File" AlternationCount="2">
-                <MenuItem x:Name="mainMenu_File_Open" Header="_Open" Command="{Binding OpenFilesCommand}" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
-                <MenuItem x:Name="mainMenu_File_Save" Header="_Save" Command="{Binding SaveCommand}" InputGestureText="{Binding ElementName=saveShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}">
+        <Menu IsMainMenu="True" Grid.Row="0" Style="{StaticResource menu}">
+            <MenuItem x:Name="mainMenu_File" Header="_File" AlternationCount="2" Style="{StaticResource menuItem}">
+                <MenuItem x:Name="mainMenu_File_Open" Header="_Open" Command="{Binding OpenFilesCommand}" InputGestureText="{Binding ElementName=openShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}" Style="{StaticResource menuItem}"/>
+                <MenuItem x:Name="mainMenu_File_Save" Header="_Save" Command="{Binding SaveCommand}" InputGestureText="{Binding ElementName=saveShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}" Style="{StaticResource menuItem}">
                     <MenuItem.Icon>
                         <Image Source="pack://application:,,,/Resources/Icons/Save.ico" Stretch="Uniform" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="mainMenu_File_Save_As" Header="_Save As" Command="{Binding SaveAsCommand}" InputGestureText="{Binding ElementName=saveAsShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}"/>
+                <MenuItem x:Name="mainMenu_File_Save_As" Header="_Save As" Command="{Binding SaveAsCommand}" InputGestureText="{Binding ElementName=saveAsShortcut, Path=Gesture, Converter={StaticResource gestureConverter}}" Style="{StaticResource menuItem}"/>
             </MenuItem>
         </Menu>
 
@@ -116,7 +116,7 @@
         <!-- ============== Status Bar ============== -->
         <Grid Grid.Row="2" x:Name="statusBarGrid">
             <ProgressBar x:Name="statusProgress" Minimum="0" Maximum="1" Value="{Binding Status.ProgressPercent, FallbackValue=0}"  VerticalAlignment="Stretch"/>
-            <TextBlock x:Name="statusText" Text="{Binding Status.Status}" Foreground="{Binding Status.TextColor}" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Top">
+            <TextBlock x:Name="statusText" Text="{Binding Status.Status}" Foreground="{Binding Status.TextColor}" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Top" Style="{StaticResource textBlock}">
             </TextBlock>
         </Grid>
     </Grid>

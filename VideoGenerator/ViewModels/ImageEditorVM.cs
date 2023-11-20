@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -13,12 +17,19 @@ using Serilog;
 using VideoGenerator.Models;
 using VideoGenerator.Utils.Extensions;
 
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
+using OpenCvSharp.WpfExtensions;
+
+using Image = System.Drawing.Image;
+
 namespace VideoGenerator.ViewModels;
 
 public class ImageEditorVM : ObservableObject, IDisposable
 {
     public ImageEditorVM ()
     {
+        Trace.WriteLine($"{ImageTools.Count} ImageTools Available!");
     }
 
 
@@ -59,8 +70,15 @@ public class ImageEditorVM : ObservableObject, IDisposable
     private ObservableCollection<IImageTool>? _imageTools;
     public ObservableCollection<IImageTool> ImageTools
     {
-        get => _imageTools ??= Application.Current.Dispatcher.Invoke(() => new ObservableCollection<IImageTool>());
+        get => _imageTools ??= GetTools();
         set => SetProperty(ref _imageTools, value);
+    }
+
+    private ObservableCollection<UserControl>? _imageToolViews;
+    public ObservableCollection<UserControl>? ImageToolViews
+    {
+        get => _imageToolViews;
+        set => SetProperty(ref _imageToolViews, value);
     }
 
     private readonly double _minZoom = 0.01;
@@ -153,6 +171,43 @@ public class ImageEditorVM : ObservableObject, IDisposable
     #endregion Public Methods
 
     #region Private Methods
+
+    private ObservableCollection<IImageTool> GetTools()
+    {
+        var type = typeof(IImageTool);
+        var tools = AppDomain.CurrentDomain.GetAssemblies().AsParallel()
+            .SelectMany(s => s.GetTypes())                                      //Flatten the types from each assemly
+            .Where(p => type.IsAssignableFrom(p) && p.IsClass)                  //Get only classes matching the interface
+            .Select(t => t.GetConstructor([])?.Invoke([]) as IImageTool)        //Create the constructors
+            .Where(t => t is not null).ToArray();                               //Filter out the null constructs and force enumeration
+
+        foreach(var tool in tools)
+        {
+            if (tool is null) continue;
+            tool.PropertyChanged += Tool_PropertyChanged;
+        }
+        var toolViews = tools.Select(t => t?.View).Where(v => v is not null).ToArray();
+
+        var toolViewVMPairs = Application.Current.Dispatcher.Invoke(() =>       //Have to create ObservableCollections on the MainThread
+        {
+            return (Views: new ObservableCollection<UserControl>(toolViews!),
+                    ViewModels: new ObservableCollection<IImageTool>(tools!));
+        });
+        ImageToolViews = toolViewVMPairs.Views;
+        return toolViewVMPairs.ViewModels;
+    }
+
+    private void Tool_PropertyChanged (object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (sender is not IImageTool tool || tool.Filter is null) return;
+        if (Image?.GetData() is not Bitmap bitmap) return;
+
+        using Mat dst = new();
+        tool.Filter(bitmap.ToMat(), dst);
+        Bitmap = new(dst.ToBitmapSource());
+        Bitmap.AddDirtyRect(new(0, 0, Bitmap.PixelWidth, Bitmap.PixelHeight));
+        Bitmap.Unlock();
+    }
 
     private void CreateNewBitmap (Image? image)
     {
