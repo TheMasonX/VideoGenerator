@@ -24,17 +24,17 @@ public class ImageEditorVM : ObservableObject, IDisposable
 
     public void Dispose ()
     {
-        throw new NotImplementedException();
+        GC.SuppressFinalize(this);
     }
 
 
     #region Properties
 
     private ImageData? _image;
-    private ImageData? Image
+    public ImageData? Image
     {
         get => _image;
-        set
+        private set
         {
             if (SetProperty(ref _image, value))
             {
@@ -63,9 +63,9 @@ public class ImageEditorVM : ObservableObject, IDisposable
         set => SetProperty(ref _imageTools, value);
     }
 
-    private double _minZoom = 0.01;
+    private readonly double _minZoom = 0.01;
     public double MinZoom => _minZoom;
-    private double _maxZoom = 5;
+    private readonly double _maxZoom = 5;
     public double MaxZoom => _maxZoom;
 
     private double _zoom = 1;

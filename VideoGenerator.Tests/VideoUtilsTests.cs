@@ -1,5 +1,6 @@
 //#define USE_LOCAL_FILES
 
+using System.Diagnostics;
 using System.Drawing;
 using System.Text.RegularExpressions;
 
@@ -23,7 +24,7 @@ public partial class VideoUtilsTests
         return (folder, files);
 #else
         string folder = @".\";
-        string[] files = Enumerable.Repeat(@".\uv_test.png", 50).ToArray();
+        string[] files = Enumerable.Repeat(@".\contours_test.png", 20).ToArray();
         return (folder, files);
 #endif
     }
@@ -31,15 +32,22 @@ public partial class VideoUtilsTests
     [DataTestMethod]
     [DataRow(null)]
     [DataRow(VideoFilter.Canny)]
+    [DataRow(VideoFilter.Laplacian)]
     [DataRow(VideoFilter.Contours)]
+    [DataRow(VideoFilter.HighPass)]
+    [DataRow(VideoFilter.Other)]
     public void CreateVideo (VideoFilter filter)
     {
         var folderAndFiles = GetFolderAndFiles();
         string folder = folderAndFiles.folder;
         string[] files = folderAndFiles.files;
-        
-        var images = files.Select(f => Image.FromFile(f)).AsQueryable();
+
+        var sw = Stopwatch.StartNew();
+        //var images = files.Select(f => Image.FromFile(f)).ToArray();
+        var images = files.AsParallel().Select(f => Image.FromFile(f)).Take(10).ToArray();
+        sw.Stop();
+        Trace.WriteLine($"Creating image array took {sw}");
         var filterMethod = filter.GetFilterMethod();
-        VideoUtils.CreateVideo(images, $@"{Environment.CurrentDirectory}\Video{(filterMethod is null ? "" : $"_{filter}")}.mp4", TimeSpan.FromSeconds(40), Resolution.VGA.ToSize(), filterMethod);
+        VideoUtils.CreateVideo(images, $@"{Environment.CurrentDirectory}\Video{(filterMethod is null ? "" : $"_{filter}")}.mp4", TimeSpan.FromSeconds(10), Resolution.VGA.ToSize(), filterMethod);
     }
 }
