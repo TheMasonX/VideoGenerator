@@ -20,7 +20,9 @@ public partial class MainWindowVM : ObservableObject, IDisposable
 {
     private const string _openFileDialogTitle = "Select Images To Convert";
     private const string _inputExtensionFilter = "Image files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png|All files (*.*)|*.*";
-    public readonly Regex InputExtensionRegex = new(@"(\.bmp)|(\.jpg)|(\.png)");
+    [GeneratedRegex(@"(\.bmp)|(\.jpg)|(\.png)")]
+    private static partial Regex GetInputExtensionRegex ();
+    public readonly Regex InputExtensionRegex = GetInputExtensionRegex();
 
     private const string _saveFileDialogTitle = "Save Video File";
     private const string _outputExtensionFilter = "Video File (*.mp4)|*.mp4|All files (*.*)|*.*";
@@ -169,7 +171,7 @@ public partial class MainWindowVM : ObservableObject, IDisposable
                     continue;
                 }
 
-                if (FileGrid.OpenFile(file, true))
+                if (FileGrid.OpenFile(file))
                 {
                     Status.Update(1);
                 }

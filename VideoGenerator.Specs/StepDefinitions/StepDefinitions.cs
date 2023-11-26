@@ -5,14 +5,9 @@ using VideoGenerator.Specs.Drivers;
 namespace VideoGenerator.Specs.StepDefinitions;
 
 [Binding]
-public sealed class StepDefinitions
+public sealed class StepDefinitions (VideoGeneratorForm form)
 {
-    private readonly VideoGeneratorForm _form;
-
-    public StepDefinitions (VideoGeneratorForm form)
-    {
-        _form = form;
-    }
+    private readonly VideoGeneratorForm _form = form;
 
     [Given(@"App is loaded")]
     public static void GivenAppIsLoaded ()

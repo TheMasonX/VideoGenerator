@@ -18,12 +18,12 @@
         <Label Grid.Row="0" x:Name="toolHeader" Content="{Binding Name}" ToolTip="{Binding Description}" FontSize="{x:Static SystemFonts.MenuFontSize}" FontStyle="{x:Static SystemFonts.MenuFontStyle}" FontWeight="{x:Static SystemFonts.MenuFontWeight}" KeyTipService.KeyTip="{Binding KeyTip}"/>
         
         <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Expander Header="Min Color" IsExpanded="True">
-                <colorPicker:StandardColorPicker SelectedColor="{Binding MinColor, Mode=TwoWay, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged}" ShowAlpha="False" ShowFractionalPart="False"/>
+            <Expander Header="Color Range" IsExpanded="True">
+                <colorPicker:StandardColorPicker SelectedColor="{Binding MinColor, Mode=TwoWay, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged}" SecondaryColor="{Binding MaxColor, Mode=TwoWay, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged}" ShowAlpha="False" ShowFractionalPart="False"/>
             </Expander>
-            <Expander Header="Max Color" IsExpanded="True">
+            <!--<Expander Header="Max Color" IsExpanded="True">
                 <colorPicker:StandardColorPicker  SelectedColor="{Binding MaxColor, Mode=TwoWay, NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged}"  ShowAlpha="False"/>
-            </Expander>
+            </Expander>-->
         </StackPanel>
     </Grid>
 </UserControl>

@@ -48,11 +48,6 @@ public partial class MainWindow : Window
         GetFiles(e, vm.InputExtensionRegex);
     }
 
-    private static IQueryable<string>? GetFiles (DragEventArgs e, string regex)
-    {
-        return GetFiles(e, new Regex(regex));
-    }
-
     private static IQueryable<string>? GetFiles (DragEventArgs e, Regex regex)
     {
         if (!e.Data.GetDataPresent(DataFormats.FileDrop))

@@ -7,7 +7,7 @@ using Serilog;
 
 namespace VideoGenerator.Utils.Controls;
 
-public class NumericBox : TextBox
+public partial class NumericBox : TextBox
 {
     public NumericBox () : base()
     {
@@ -15,49 +15,51 @@ public class NumericBox : TextBox
         //RegisterMouseEvents();
     }
 
-    private void RegisterMouseEvents ()
-    {
-        MouseLeftButtonDown += NumericBox_MouseLeftButtonDown;
-        MouseLeftButtonUp += (a, b) => clicked = false;
-        LostFocus += (a, b) => clicked = dragging = false;
-        MouseMove += NumericBox_MouseMove;
-    }
+    //private void RegisterMouseEvents ()
+    //{
+    //    MouseLeftButtonDown += NumericBox_MouseLeftButtonDown;
+    //    MouseLeftButtonUp += (a, b) => clicked = false;
+    //    LostFocus += (a, b) => clicked = dragging = false;
+    //    MouseMove += NumericBox_MouseMove;
+    //}
 
-    private readonly double minDragDistance = SystemParameters.MinimumHorizontalDragDistance * SystemParameters.MinimumHorizontalDragDistance + SystemParameters.MinimumVerticalDragDistance * SystemParameters.MinimumVerticalDragDistance;
-    private Point mouseClickPosition;
-    private bool clicked = false;
-    private bool dragging = false;
+    //private readonly double minDragDistance = SystemParameters.MinimumHorizontalDragDistance * SystemParameters.MinimumHorizontalDragDistance + SystemParameters.MinimumVerticalDragDistance * SystemParameters.MinimumVerticalDragDistance;
+    //private Point mouseClickPosition;
+    //private bool clicked = false;
+    //private bool dragging = false;
 
-    private void NumericBox_MouseLeftButtonDown (object sender, System.Windows.Input.MouseButtonEventArgs e)
-    {
-        if (sender is not UIElement element)
-        {
-            return;
-        }
+    //private void NumericBox_MouseLeftButtonDown (object sender, System.Windows.Input.MouseButtonEventArgs e)
+    //{
+    //    if (sender is not UIElement element)
+    //    {
+    //        return;
+    //    }
 
-        clicked = true;
-        mouseClickPosition = e.MouseDevice.GetPosition(element);
-    }
+    //    clicked = true;
+    //    mouseClickPosition = e.MouseDevice.GetPosition(element);
+    //}
 
-    private void NumericBox_MouseMove (object sender, System.Windows.Input.MouseEventArgs e)
-    {
-        if (sender is not UIElement element)
-        {
-            return;
-        }
+    //private void NumericBox_MouseMove (object sender, System.Windows.Input.MouseEventArgs e)
+    //{
+    //    if (sender is not UIElement element)
+    //    {
+    //        return;
+    //    }
 
-        Point pos = e.MouseDevice.GetPosition(element);
-        Vector offset = mouseClickPosition - pos;
-        double offsetMagnitude = offset.Length - minDragDistance;
-        if (offsetMagnitude <= 0)
-        {
-            return;
-        }
+    //    Point pos = e.MouseDevice.GetPosition(element);
+    //    Vector offset = mouseClickPosition - pos;
+    //    double offsetMagnitude = offset.Length - minDragDistance;
+    //    if (offsetMagnitude <= 0)
+    //    {
+    //        return;
+    //    }
 
-        Log.Debug("{Magnitude}", offsetMagnitude);
-    }
+    //    Log.Debug("{Magnitude}", offsetMagnitude);
+    //}
 
-    public static readonly Regex IntRegex = new(@"[\d]{1,}", RegexOptions.Compiled);
+    [GeneratedRegex(@"[\d]{1,}")]
+    private static partial Regex GetIntRegex ();
+    public static readonly Regex IntRegex = GetIntRegex();
     public static Regex FloatRegex => new($"[\\d,\\{DecimalSeparator}]{{1,}}");
     public static Regex FloatSeparatorRegex => new($".*[{DecimalSeparator}]{{1,}}.*");
     public static string DecimalSeparator => CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;

@@ -11,4 +11,5 @@ public static partial class RegexEx
 {
     [GeneratedRegex(@"(\.png)|(\.bmp)|(\.jpg)")]
     public static partial Regex GetImageFileRegex();
+    public static readonly Regex ImageFileRegex = GetImageFileRegex();
 }

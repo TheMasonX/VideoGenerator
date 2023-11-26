@@ -205,18 +205,14 @@ public class ImageEditorVM : ObservableObject, IDisposable
         using Mat dst = new();
         tool.Filter(bitmap.ToMat(), dst);
         Bitmap = new(dst.ToBitmapSource());
-        Bitmap.AddDirtyRect(new(0, 0, Bitmap.PixelWidth, Bitmap.PixelHeight));
-        Bitmap.Unlock();
     }
 
     private void CreateNewBitmap (Image? image)
     {
-        if (image is null || image.Width <= 0 || image.Height <= 0)
-        {
-            return;
-        }
+        if (image is not Bitmap bitmap || image.Width <= 0 || image.Height <= 0) return;
 
-        Bitmap = image.ToWriteableBitmap();
+        //Bitmap = image.ToWriteableBitmap();
+        Bitmap = new(bitmap.ToMat().ToBitmapSource());
     }
 
     #endregion Private Methods

@@ -4,12 +4,8 @@ using SpecFlow.Actions.WindowsAppDriver;
 
 namespace VideoGenerator.Specs.Drivers;
 
-public class VideoGeneratorForm : VideoGeneratorElements
+public class VideoGeneratorForm (AppDriver appDriver) : VideoGeneratorElements(appDriver)
 {
-    public VideoGeneratorForm (AppDriver appDriver) : base(appDriver)
-    {
-    }
-
     public void ClickFilesTab () => FilesTab.Click();
     public void ClickImageEditorTab () => ImageEditorTab.Click();
     public void ClickFilesGrid () => FilesGrid.Click();

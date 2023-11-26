@@ -67,8 +67,8 @@ public static class AssertEx
 [TestClass]
 public class ColorUtilsTests
 {
-    private static readonly (OldColor, NewColor)[] pairs = new[]
-    {
+    private static readonly (OldColor, NewColor)[] pairs =
+    [
         (OldColor.Black, NewColors.Black),
         (OldColor.Red, NewColors.Red),
         (OldColor.Blue, NewColors.Blue),
@@ -80,7 +80,7 @@ public class ColorUtilsTests
         (OldColor.Brown, NewColors.Brown),
         (OldColor.Pink, NewColors.Pink),
         (OldColor.Purple, NewColors.Purple),
-    };
+    ];
 
     [TestMethod]
     public void ConvertForward ()

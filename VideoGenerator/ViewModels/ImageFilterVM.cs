@@ -75,26 +75,14 @@ public class ImageFilterVM : ObservableObject, IImageTool, IDisposable
     public NewColor MinColor
     {
         get => _minColor ??= NewColors.Black;
-        set
-        {
-            if (SetProperty(ref _minColor, value))
-            {
-                OnPropertyChanged(nameof(Filter));
-            }
-        }
+        set => SetProperty(ref _minColor, value);
     }
 
     private NewColor? _maxColor;
     public NewColor MaxColor
     {
         get => _maxColor ??= NewColors.Black;
-        set
-        {
-            if(SetProperty(ref _maxColor, value))
-            {
-                OnPropertyChanged(nameof(Filter));
-            }
-        }
+        set => SetProperty(ref _maxColor, value);
     }
 
     public ImageFilter? Filter => ApplyFilter;
@@ -142,7 +130,7 @@ public class ImageFilterVM : ObservableObject, IImageTool, IDisposable
         VideoUtils.RemoveMasks(a, b, filters);
     }
 
-    private UserControl GetView ()
+    private ImageFilterControl GetView ()
     {
         ImageFilterControl uc = new()
         {

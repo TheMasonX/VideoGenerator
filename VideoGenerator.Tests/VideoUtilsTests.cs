@@ -18,7 +18,6 @@ public partial class VideoUtilsTests
     private static (string folder, string[] files) GetFolderAndFiles()
     {
 #if USE_LOCAL_FILES
-
         string folder = @$"{Environment.GetEnvironmentVariable("UserProfile")}\Pictures\3D Scans\Owl Scans\Scan 3";
         string[] files = Directory.GetFiles(folder).Where(f => RegexEx.GetImageFileRegex().IsMatch(f)).ToArray();
         return (folder, files);

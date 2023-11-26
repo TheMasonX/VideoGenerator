@@ -16,7 +16,7 @@ namespace VideoGenerator.ViewModels;
 
 public partial class FileGridVM : ObservableObject, IDisposable
 {
-    private object _lock = new();
+    private readonly object _lock = new();
 
     public FileGridVM ()
     {
@@ -35,6 +35,7 @@ public partial class FileGridVM : ObservableObject, IDisposable
             _imageFiles.Clear();
         }
         _imageFilesView = null;
+        GC.SuppressFinalize(this);
     }
 
 
@@ -44,7 +45,7 @@ public partial class FileGridVM : ObservableObject, IDisposable
     private List<ImageData>? _imageFiles;
     public List<ImageData> ImageFiles
     {
-        get => _imageFiles ??= new();
+        get => _imageFiles ??= [];
         set => SetProperty(ref _imageFiles, value);
     }
 
@@ -115,7 +116,7 @@ public partial class FileGridVM : ObservableObject, IDisposable
 
     #region Public Methods
 
-    public bool OpenFile (string? file, bool update = true)
+    public bool OpenFile (string? file)
     {
         if (file.IsNullOrEmpty())
         {

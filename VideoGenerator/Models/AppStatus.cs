@@ -64,10 +64,10 @@ namespace VideoGenerator.Models
 
     public class LoadingStatus : ObservableObject, IAppStatus, IDisposable
     {
-        private string _itemLabel = "Item";
-        private string _itemLabelPlural = "Items";
+        private readonly string _itemLabel = "Item";
+        private readonly string _itemLabelPlural = "Items";
         private int _currentCount = 0;
-        private object _lock = new();
+        private readonly object _lock = new();
 
         public LoadingStatus (int startCount, int totalCount, string itemLabel, string itemLabelPlural)
         {
@@ -84,7 +84,7 @@ namespace VideoGenerator.Models
 
         public void Dispose ()
         {
-            throw new NotImplementedException();
+            GC.SuppressFinalize(this);
         }
 
 

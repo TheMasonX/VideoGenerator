@@ -24,18 +24,18 @@ namespace VideoGenerator.Utils.Converters;
 /// Arguments of multi value converter may be referred as x,y,z,t (first-fourth argument), or a,b,c,d, or {0}, {1}, {2}, {3}, {4}, ...
 /// The converter supports arithmetic expressions of arbitrary complexity, including nested subexpressions
 /// </remarks>
-public class MathConverter :
+public partial class MathConverter :
 #if !SILVERLIGHT
     MarkupExtension,
     IMultiValueConverter,
 #endif
     IValueConverter
 {
-    Dictionary<string, IExpression> _storedExpressions = new();
+    Dictionary<string, IExpression> _storedExpressions = [];
 
     public object Convert (object value, Type targetType, object parameter, CultureInfo culture)
     {
-        return Convert(new object[] { value }, targetType, parameter, culture);
+        return Convert([value], targetType, parameter, culture);
     }
 
     public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
@@ -101,8 +101,7 @@ public class MathConverter :
 
     private IExpression Parse (string s)
     {
-        IExpression result = null;
-        if (!_storedExpressions.TryGetValue(s, out result))
+        if (!_storedExpressions.TryGetValue(s, out IExpression result))
         {
             result = new Parser().Parse(s);
             _storedExpressions[s] = result;
@@ -118,7 +117,7 @@ public class MathConverter :
 
     class Constant : IExpression
     {
-        private decimal _value;
+        private readonly decimal _value;
 
         public Constant (string text)
         {
@@ -136,7 +135,7 @@ public class MathConverter :
 
     class Variable : IExpression
     {
-        private int _index;
+        private readonly int _index;
 
         public Variable (string text)
         {
@@ -162,25 +161,18 @@ public class MathConverter :
         }
     }
 
-    class BinaryOperation : IExpression
+    class BinaryOperation (char operation, IExpression left, IExpression right) : IExpression
     {
-        private Func<decimal, decimal, decimal> _operation;
-        private IExpression _left;
-        private IExpression _right;
-
-        public BinaryOperation (char operation, IExpression left, IExpression right)
+        private readonly Func<decimal, decimal, decimal> _operation = operation switch
         {
-            _left = left;
-            _right = right;
-            switch (operation)
-            {
-                case '+': _operation = (a, b) => (a + b); break;
-                case '-': _operation = (a, b) => (a - b); break;
-                case '*': _operation = (a, b) => (a * b); break;
-                case '/': _operation = (a, b) => (a / b); break;
-                default: throw new ArgumentException("Invalid operation " + operation);
-            }
-        }
+            '+' => (a, b) => (a + b),
+            '-' => (a, b) => (a - b),
+            '*' => (a, b) => (a * b),
+            '/' => (a, b) => (a / b),
+            _ => throw new ArgumentException("Invalid operation " + operation),
+        };
+        private readonly IExpression _left = left;
+        private readonly IExpression _right = right;
 
         public decimal Eval (object[] args)
         {
@@ -188,14 +180,9 @@ public class MathConverter :
         }
     }
 
-    class Negate : IExpression
+    class Negate (IExpression param) : IExpression
     {
-        private IExpression _param;
-
-        public Negate (IExpression param)
-        {
-            _param = param;
-        }
+        private readonly IExpression _param = param;
 
         public decimal Eval (object[] args)
         {
@@ -203,7 +190,7 @@ public class MathConverter :
         }
     }
 
-    class Parser
+    partial class Parser
     {
         private string text;
         private int pos;
@@ -337,14 +324,13 @@ public class MathConverter :
                 var end = text.IndexOf('}', pos);
                 if (end < 0) { --pos; throw new ArgumentException("Unmatched '{'"); }
                 if (end == pos) { throw new ArgumentException("Missing parameter index after '{'"); }
-                var result = new Variable(text.Substring(pos, end - pos).Trim());
+                var result = new Variable(text[pos..end].Trim());
                 pos = end + 1;
                 SkipWhiteSpace();
                 return result;
             }
 
-            const string decimalRegEx = @"(\d+\.?\d*|\d*\.?\d+)";
-            var match = Regex.Match(text.Substring(pos), decimalRegEx);
+            var match = decimalRegex().Match(text[pos..]);
             if (match.Success)
             {
                 pos += match.Length;
@@ -389,5 +375,8 @@ public class MathConverter :
                 throw new ArgumentException("Unexpected character '" + text[pos] + "'");
             }
         }
+
+        [GeneratedRegex(@"(\d+\.?\d*|\d*\.?\d+)")]
+        private static partial Regex decimalRegex ();
     }
 }

@@ -109,21 +109,32 @@ public static class VideoUtils
 
     #region Masks
 
+    public static ColorSpace? GetConversionSpace(this Mat src, Mat dst)
+    {
+        return (srcChannels: src.Channels(), dstChannels: dst.Channels()) switch
+        {
+            (1, 1) => null,
+            (1, 3) => ColorSpace.GRAY2BGR,
+            (1, 4) => ColorSpace.GRAY2BGRA,
+            (3, 1) => ColorSpace.BGR2GRAY,
+            (3, 4) => ColorSpace.BGR2BGRA,
+            (4, 3) => ColorSpace.BGRA2BGR,
+            (4, 1) => ColorSpace.BGRA2GRAY,
+            _ => null,
+        };
+    }
+
     public static void RemoveMasks (this Mat src, Mat dst, IEnumerable<ImageFilter> masks)
     {
         using Mat bgMask = new();
         CombineMasksAndNegate(src, bgMask, masks);
-        if(src.Channels() > bgMask.Channels())
+        var conversion = GetConversionSpace(bgMask, src); //Converting from mask space to whatever the source space is
+        if(!conversion.HasValue)
         {
-            Cv2.BitwiseAnd(src, bgMask.CvtColor(ColorSpace.GRAY2BGR), dst);
+            Cv2.BitwiseAnd(src, bgMask, dst);
             return;
         }
-        else if (src.Channels() < bgMask.Channels())
-        {
-            Cv2.BitwiseAnd(src.CvtColor(ColorSpace.GRAY2BGR), bgMask, dst);
-            return;
-        }
-        Cv2.BitwiseAnd(src, bgMask, dst);
+        Cv2.BitwiseAnd(src, bgMask.CvtColor(conversion.Value), dst);
     }
 
     public static void CombineMasksAndNegate (this Mat src, Mat dst, IEnumerable<ImageFilter> masks)

@@ -6,15 +6,10 @@ using SpecFlow.Actions.WindowsAppDriver;
 
 namespace VideoGenerator.Specs.Drivers;
 
-public class VideoGeneratorElements
+public class VideoGeneratorElements (AppDriver appDriver)
 {
-    private readonly AppDriver _appDriver;
+    private readonly AppDriver _appDriver = appDriver;
     protected WindowsDriver<WindowsElement> Driver => _appDriver.Current;
-
-    public VideoGeneratorElements (AppDriver appDriver)
-    {
-        _appDriver = appDriver;
-    }
 
     public WindowsElement FilesTab => _appDriver.Current.FindElementByAccessibilityId("filesTab");
     public WindowsElement ImageEditorTab => _appDriver.Current.FindElementByAccessibilityId("imageEditorTab");
